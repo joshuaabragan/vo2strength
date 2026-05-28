@@ -455,6 +455,18 @@ function condAlert(){
   return'<div class="al ab">&#128203; Your plan will incorporate condition-specific exercise guidelines for the conditions you selected.</div>';
 }
 
+function renderDaysTotal(){
+  const c=parseInt(A.cardioDaysWk)||0;
+  const r=parseInt(A.resistDaysWk)||0;
+  const b=parseInt(A.combinedDaysWk)||0;
+  const total=c+r+b;
+  if(!total) return '';
+  const cardioMins=c*30+b*20; // rough estimate
+  A.days=total; // set total days for schedule generation
+  let msg='<div class="al ag">&#10003; Total: <strong>'+total+' training day'+(total>1?'s':'')+'/week</strong> — '+c+' cardio only, '+r+' resistance only, '+b+' combined.</div>';
+  if(total>6) msg+='<div class="al aw" style="margin-top:.4rem;">&#9888; '+total+' days is very ambitious. Make sure at least 1 full rest day is included for recovery.</div>';
+  return msg;
+}
 function daysGuide(){
   if(!A.days)return'';
   const d=parseInt(A.days);
@@ -514,12 +526,11 @@ function togCond(el,name){
 
 function selCardioYN(v){
   A.doCardio=v;
-  document.querySelectorAll('#cardio-details').forEach(()=>{});
   const det=document.getElementById('cardio-details');
   const guide=document.getElementById('cardio-guidelines');
   if(det) det.style.display=v!=='No — not currently'?'block':'none';
   document.querySelectorAll('[onclick*="selCardioYN"]').forEach(el=>{
-    el.classList.toggle('sel', el.querySelector('.ot').textContent===v);
+    el.classList.toggle('sel', el.querySelector('.ot')?.textContent===v);
   });
   if(guide) guide.innerHTML=renderCardioGuidelines();
 }
@@ -529,12 +540,13 @@ function selResistYN(v){
   const guide=document.getElementById('resist-guidelines');
   if(det) det.style.display=v!=='No — not currently'?'block':'none';
   document.querySelectorAll('[onclick*="selResistYN"]').forEach(el=>{
-    el.classList.toggle('sel', el.querySelector('.ot').textContent===v);
+    el.classList.toggle('sel', el.querySelector('.ot')?.textContent===v);
   });
   if(guide) guide.innerHTML=renderResistGuidelines();
 }
 function renderCardioGuidelines(){
-  if(!A.doCardio||A.doCardio==='No — not currently') return '<div class="al aw">&#9888; You are not currently doing cardio. The recommended goal is 150–300 min/week of moderate intensity or 75–150 min/week vigorous. Your plan will start conservatively and build toward this.</div>';
+  if(!A.doCardio) return '';
+  if(A.doCardio==='No — not currently') return '<div class="al ab">&#128161; No problem — your plan will include a structured cardio progression to build toward recommended activity guidelines at a safe pace.</div>';
   if(!A.cardioDays||!A.cardioDur||!A.cardioInt) return '';
   const days=parseInt(A.cardioDays)||0;
   const durMap={'under 20 min':15,'20-30 min':25,'30-45 min':37,'45-60 min':52,'60+ min':65};
@@ -545,7 +557,8 @@ function renderCardioGuidelines(){
   return '<div class="al ab">&#128161; Based on your current routine (~'+mins+' min/wk '+A.cardioInt+'), you are working toward the recommended guidelines. Your plan will help you get there progressively.</div>';
 }
 function renderResistGuidelines(){
-  if(!A.doResist||A.doResist==='No — not currently') return '<div class="al aw">&#9888; You are not currently doing resistance training. Guidelines recommend 2–3 non-consecutive days per week. Your plan will include a beginner-appropriate program.</div>';
+  if(!A.doResist) return '';
+  if(A.doResist==='No — not currently') return '<div class="al ab">&#128161; No problem — your plan will include a beginner-appropriate resistance training program.</div>';
   if(!A.resistDays) return '';
   const days=parseInt(A.resistDays)||0;
   if(days>=2) return '<div class="al ag">&#10003; You train '+days+' day'+(days>1?'s':'')+'/week for resistance — this meets the recommended minimum of 2 days/week.</div>';
@@ -609,7 +622,15 @@ function saveStep(){
     if(document.getElementById('fresistdays'))A.resistDays=document.getElementById('fresistdays').value;
     if(document.getElementById('fresistdur'))A.resistDur=document.getElementById('fresistdur').value;
   }
-  if(s==='days'){A.sessLen=document.getElementById('fdur')?.value||'';A.timeOfDay=document.getElementById('ftod')?.value||'';A.hrMonitor=document.getElementById('fhrm')?.value||'';}
+  if(s==='days'){
+    A.sessLen=document.getElementById('fdur')?.value||'';
+    A.timeOfDay=document.getElementById('ftod')?.value||'';
+    A.hrMonitor=document.getElementById('fhrm')?.value||'';
+    const c=parseInt(A.cardioDaysWk)||0;
+    const r=parseInt(A.resistDaysWk)||0;
+    const b=parseInt(A.combinedDaysWk)||0;
+    A.days=c+r+b||A.days||3;
+  }
   if(s==='equipment'){A.gymType=document.getElementById('fgt')?.value||A.gymType||'';}
   if(s==='lifts'){
     const liftIds=['squat','bench','deadlift','ohp','row','pullup','legpress','curl'];
@@ -634,7 +655,7 @@ function validate(){
   if(s==='experience'&&!A.level){alert('Please select your experience level.');return false;}
   if(s==='goals'&&(!A.goals||!A.goals.length)){alert('Please select at least one goal.');return false;}
   if(s==='activity'&&(!A.doCardio||!A.doResist)){alert('Please indicate whether you currently do cardio and resistance training.');return false;}
-  if(s==='days'&&!A.days){alert('Please select how many days per week.');return false;}
+  if(s==='days'&&(!A.cardioDaysWk&&!A.resistDaysWk&&!A.combinedDaysWk)){alert('Please select at least one training day across cardio, resistance, or combined.');return false;}
   if(s==='equipment'&&(!A.eq||!A.eq.length)){alert('Please select at least one piece of equipment.');return false;}
   return true;
 }
@@ -750,7 +771,7 @@ function renderStep(){
           </div>
         </div>
       </div>
-      <div id="cardio-guidelines" style="margin-top:.75rem;">${renderCardioGuidelines()}</div>
+      <div id="cardio-guidelines" style="margin-top:.75rem;"></div>
     </div>
 
     <div style="background:var(--bg);border-radius:9px;border:1px solid var(--line);padding:1rem;margin-bottom:1rem;">
@@ -779,7 +800,7 @@ function renderStep(){
           </div>`).join('')}
         </div>
       </div>
-      <div id="resist-guidelines" style="margin-top:.75rem;">${renderResistGuidelines()}</div>
+      <div id="resist-guidelines" style="margin-top:.75rem;"></div>
     </div>
 
     <div style="background:var(--bg);border-radius:9px;border:1px solid var(--line);padding:1rem;margin-bottom:1rem;">
@@ -802,12 +823,42 @@ function renderStep(){
     </div></div>`;
   }
   else if(s==='days'){
-    h=`<div class="sc"><div class="sh"><div class="si">&#128197;</div><div><div class="st">How many days per week can you train?</div><div class="ss">Be realistic — consistency beats intensity. Pick a number you can actually commit to long-term.</div></div></div><div class="sb">
-    <div class="og" style="grid-template-columns:repeat(7,1fr);gap:.5rem;">${[1,2,3,4,5,6,7].map(d=>`<div class="oc ${A.days==d?'sel':''}" style="text-align:center;padding:.85rem .5rem;" onclick="selOpt('days',${d},this)"><div class="ot" style="font-size:1.2rem;">${d}</div><div class="os" style="font-size:11px;">${d===1?'day':'days'}</div></div>`).join('')}</div>
-    <div id="dguide" style="margin-top:.85rem;">${daysGuide()}</div>
-    <div class="fl" style="margin-top:1rem;"><label class="flb">Preferred session length</label><select id="fdur"><option value="">Select</option><option value="30 min" ${A.sessLen==='30 min'?'selected':''}>30 minutes</option><option value="45 min" ${A.sessLen==='45 min'?'selected':''}>45 minutes</option><option value="60 min" ${A.sessLen==='60 min'?'selected':''}>60 minutes</option><option value="75-90 min" ${A.sessLen==='75-90 min'?'selected':''}>75–90 minutes</option></select></div>
+    h=`<div class="sc"><div class="sh"><div class="si">&#128197;</div><div><div class="st">Training schedule</div><div class="ss">Be realistic — consistency beats intensity. You can split cardio and resistance across different days or combine them.</div></div></div><div class="sb">
+
+    <div style="background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:1rem;margin-bottom:.85rem;">
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:.75rem;">&#10052; Cardio Days</div>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:.5rem;">How many days per week for cardio only?</div>
+      <div class="og" style="grid-template-columns:repeat(8,1fr);gap:.4rem;">
+        <div class="oc ${A.cardioDaysWk=='0'?'sel':''}" style="text-align:center;padding:.65rem .35rem;" onclick="selOpt('cardioDaysWk','0',this)"><div class="ot" style="font-size:1rem;">0</div><div class="os" style="font-size:10px;">none</div></div>
+        ${[1,2,3,4,5,6,7].map(d=>`<div class="oc ${A.cardioDaysWk==d?'sel':''}" style="text-align:center;padding:.65rem .35rem;" onclick="selOpt('cardioDaysWk',${d},this)"><div class="ot" style="font-size:1rem;">${d}</div><div class="os" style="font-size:10px;">${d===1?'day':'days'}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:1rem;margin-bottom:.85rem;">
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:.75rem;">&#128170; Resistance Training Days</div>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:.5rem;">How many days per week for resistance training only?</div>
+      <div class="og" style="grid-template-columns:repeat(8,1fr);gap:.4rem;">
+        <div class="oc ${A.resistDaysWk=='0'?'sel':''}" style="text-align:center;padding:.65rem .35rem;" onclick="selOpt('resistDaysWk','0',this)"><div class="ot" style="font-size:1rem;">0</div><div class="os" style="font-size:10px;">none</div></div>
+        ${[1,2,3,4,5,6,7].map(d=>`<div class="oc ${A.resistDaysWk==d?'sel':''}" style="text-align:center;padding:.65rem .35rem;" onclick="selOpt('resistDaysWk',${d},this)"><div class="ot" style="font-size:1rem;">${d}</div><div class="os" style="font-size:10px;">${d===1?'day':'days'}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div style="background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:1rem;margin-bottom:.85rem;">
+      <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:.75rem;">&#9889; Combined Days (Cardio + Resistance same session)</div>
+      <div style="font-size:12.5px;color:var(--dim);margin-bottom:.5rem;">How many days will you do both in one session?</div>
+      <div class="og" style="grid-template-columns:repeat(8,1fr);gap:.4rem;">
+        <div class="oc ${A.combinedDaysWk=='0'?'sel':''}" style="text-align:center;padding:.65rem .35rem;" onclick="selOpt('combinedDaysWk','0',this)"><div class="ot" style="font-size:1rem;">0</div><div class="os" style="font-size:10px;">none</div></div>
+        ${[1,2,3,4,5,6,7].map(d=>`<div class="oc ${A.combinedDaysWk==d?'sel':''}" style="text-align:center;padding:.65rem .35rem;" onclick="selOpt('combinedDaysWk',${d},this)"><div class="ot" style="font-size:1rem;">${d}</div><div class="os" style="font-size:10px;">${d===1?'day':'days'}</div></div>`).join('')}
+      </div>
+    </div>
+
+    <div id="days-total" style="margin-bottom:.85rem;">${renderDaysTotal()}</div>
+
+    <div class="fl"><label class="flb">Preferred session length</label>
+      <select id="fdur"><option value="">Select</option><option value="30 min" ${A.sessLen==='30 min'?'selected':''}>30 minutes</option><option value="45 min" ${A.sessLen==='45 min'?'selected':''}>45 minutes</option><option value="60 min" ${A.sessLen==='60 min'?'selected':''}>60 minutes</option><option value="75-90 min" ${A.sessLen==='75-90 min'?'selected':''}>75–90 minutes</option></select>
+    </div>
     <div class="fl" style="margin-top:.75rem;">
-      <label class="flb">Do you have a heart rate monitor or smartwatch?</label>
+      <label class="flb">Heart rate monitor or smartwatch?</label>
       <select id="fhrm" onchange="showHRMNote(this.value)">
         <option value="">Select</option>
         <option value="yes_chest" ${A.hrMonitor==='yes_chest'?'selected':''}>Yes — chest strap (Polar, Garmin HRM)</option>
@@ -817,7 +868,9 @@ function renderStep(){
       </select>
       <div id="hrm-note" style="margin-top:.5rem;"></div>
     </div>
-    <div class="fl" style="margin-top:.75rem;"><label class="flb">Preferred time of day to train</label><select id="ftod"><option value="">Select</option><option value="Early morning (before 8am)" ${A.timeOfDay==='Early morning (before 8am)'?'selected':''}>Early morning (before 8am)</option><option value="Morning (8am-12pm)" ${A.timeOfDay==='Morning (8am-12pm)'?'selected':''}>Morning (8am–12pm)</option><option value="Afternoon (12pm-5pm)" ${A.timeOfDay==='Afternoon (12pm-5pm)'?'selected':''}>Afternoon (12pm–5pm)</option><option value="Evening (after 5pm)" ${A.timeOfDay==='Evening (after 5pm)'?'selected':''}>Evening (after 5pm)</option><option value="No preference" ${A.timeOfDay==='No preference'?'selected':''}>No preference</option></select></div>
+    <div class="fl" style="margin-top:.75rem;"><label class="flb">Preferred time of day to train</label>
+      <select id="ftod"><option value="">Select</option><option value="Early morning (before 8am)" ${A.timeOfDay==='Early morning (before 8am)'?'selected':''}>Early morning (before 8am)</option><option value="Morning (8am-12pm)" ${A.timeOfDay==='Morning (8am-12pm)'?'selected':''}>Morning (8am–12pm)</option><option value="Afternoon (12pm-5pm)" ${A.timeOfDay==='Afternoon (12pm-5pm)'?'selected':''}>Afternoon (12pm–5pm)</option><option value="Evening (after 5pm)" ${A.timeOfDay==='Evening (after 5pm)'?'selected':''}>Evening (after 5pm)</option><option value="No preference" ${A.timeOfDay==='No preference'?'selected':''}>No preference</option></select>
+    </div>
     </div></div>`;
   }
   else if(s==='lifts'){
@@ -948,7 +1001,8 @@ async function doGen(){
   const prompt=`Client: ${A.name||'Client'}, Age ${age}, ${A.sex}, ${A.height}, ${A.weight}lbs, BMI ${bmi||'N/A'}
 Goal: ${gLabel} | Primary Pathway: ${A.pathway} | Level: ${A.level}
 Additional program components: ${(A.addOns||[]).length?(A.addOns.map(a=>({add_running:'Running/Endurance',add_strength:'Strength & Power',add_sport:'Sport-Specific Conditioning',add_mobility:'Mobility & Flexibility'}[a]||a)).join(', ')):'none — primary pathway only'}
-Days: ${days}/wk (${dayNames.join(', ')}) | Session: ${A.sessLen||'60 min'} | Time pref: ${A.timeOfDay||'any'}
+Training days: ${days} total/wk — Cardio only: ${A.cardioDaysWk||0} days | Resistance only: ${A.resistDaysWk||0} days | Combined: ${A.combinedDaysWk||0} days | Session length: ${A.sessLen||'60 min'} | Time pref: ${A.timeOfDay||'any'}
+Schedule days: ${dayNames.join(', ')}
 Cardio preferences: ${(A.cardioPrefs||[]).join(', ')||'no preference'}
 Current activity baseline:
 - Cardio: ${A.doCardio||'not specified'} ${A.cardioDays?'| '+A.cardioDays+' days/wk':''} ${A.cardioDur?'| '+A.cardioDur+'/session':''} ${A.cardioInt?'| '+A.cardioInt+' intensity':''}
@@ -983,7 +1037,7 @@ Rules: weeklySchedule must have exactly ${days} days. ${A.hrMonitor&&A.hrMonitor
   try{
     clearInterval(lsi);
     console.log('Calling API now...');
-    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2000,system:sys,messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2000,system:sys,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     if(data.error){
       rs.innerHTML='<div class="al ar" style="margin-top:1rem;">&#9888; <strong>Error:</strong> '+data.error.message+'<br><button onclick="resetApp()" class="rstb" style="margin-top:.5rem;">&#8592; Try again</button></div>';
@@ -1275,7 +1329,7 @@ async function showEM(name) {
 
   try {
     const [aiRes] = await Promise.all([
-      fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:500,system:'You are a certified strength coach. Return ONLY valid JSON, no markdown, no backticks.',messages:[{role:'user',content:'Exercise guide for: "'+name+'". Return JSON: {"muscles":["muscle1","muscle2"],"order":"when in workout session","steps":["step1","step2","step3","step4"],"mistake":"most common mistake","beginner":"easier beginner alternative"}'}]})}),
+      fetch('/api/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:500,system:'You are a certified strength coach. Return ONLY valid JSON, no markdown, no backticks.',messages:[{role:'user',content:'Exercise guide for: "'+name+'". Return JSON: {"muscles":["muscle1","muscle2"],"order":"when in workout session","steps":["step1","step2","step3","step4"],"mistake":"most common mistake","beginner":"easier beginner alternative"}'}]})}),
       gifPromise
     ]);
     const d=await aiRes.json();
