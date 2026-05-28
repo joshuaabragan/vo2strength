@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VO2Strength — Train Smarter</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:#0a0a0a;--ink2:#1c1c1c;--dim:#6b6b6b;--line:#e2e2e2;
+  --bg:#f8f7f4;--white:#ffffff;
+  --red:#c8002a;--red-dim:#f5e0e5;
+  --blue:#0042c4;--blue-dim:#dde8ff;
+  --green:#006e3c;--green-dim:#d8f0e6;
+  --orange:#c45a00;--orange-dim:#fdeee0;
+  --purple:#4a00b4;--purple-dim:#ede0ff;
+  --gold:#8a6200;--gold-dim:#fdf6e0;
+}
+html{font-size:16px;scroll-behavior:smooth;}
+body{font-family:'Instrument Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+nav{position:sticky;top:0;z-index:200;background:var(--bg);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 2rem;height:56px;}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:-.02em;color:var(--ink);}
+.nav-logo span{color:var(--red);}
+.nav-links{display:flex;gap:1.75rem;list-style:none;}
+.nav-links a{font-size:13px;font-weight:500;color:var(--dim);text-decoration:none;transition:color .15s;}
+.nav-links a:hover{color:var(--ink);}
+.nav-cta{background:var(--ink);color:var(--white);border:none;padding:7px 18px;border-radius:6px;font-family:'Instrument Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:opacity .15s;}
+.nav-cta:hover{opacity:.8;}
+@media(max-width:600px){.nav-links{display:none;}}
+.hero{background:var(--ink2);padding:4.5rem 2rem 3.5rem;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(200,0,42,.18) 0%,transparent 65%);pointer-events:none;}
+.hero-kicker{font-size:11px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--red);margin-bottom:1rem;opacity:.9;}
+.hero h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.2rem,5vw,3.5rem);line-height:1.05;letter-spacing:-.03em;color:var(--white);max-width:640px;margin:0 auto 1rem;}
+.hero h1 em{color:var(--red);font-style:normal;}
+.hero-sub{font-size:.95rem;color:rgba(255,255,255,.55);max-width:420px;margin:0 auto 1.75rem;line-height:1.65;font-weight:300;}
+.hero-btns{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;}
+.btn-p{background:var(--red);color:var(--white);border:none;padding:11px 28px;border-radius:7px;font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:opacity .15s;text-decoration:none;display:inline-block;}
+.btn-p:hover{opacity:.85;}
+.btn-g{background:transparent;color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.2);padding:11px 28px;border-radius:7px;font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;text-decoration:none;display:inline-block;}
+.btn-g:hover{border-color:rgba(255,255,255,.5);color:white;}
+.main{max-width:780px;margin:0 auto;padding:2.5rem 1.5rem 5rem;}
+.pw{margin-bottom:2rem;}
+.pt{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem;}
+.pl{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.04em;color:var(--dim);}
+.pc{font-size:12px;color:var(--dim);}
+.pb{height:4px;background:var(--line);border-radius:99px;overflow:hidden;}
+.pf{height:100%;background:var(--red);border-radius:99px;transition:width .4s ease;}
+.sc{background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:hidden;animation:fadeUp .25s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.sh{padding:1.25rem 1.5rem;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;gap:12px;}
+.si{width:36px;height:36px;background:var(--ink2);border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--white);font-size:16px;flex-shrink:0;margin-top:1px;}
+.st{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:2px;}
+.ss{font-size:12.5px;color:var(--dim);line-height:1.5;}
+.sb{padding:1.5rem;}
+.fl{display:flex;flex-direction:column;gap:5px;margin-bottom:1rem;}
+.fl:last-child{margin-bottom:0;}
+.flb{font-size:11px;font-weight:600;color:var(--dim);letter-spacing:.05em;text-transform:uppercase;}
+input[type=number],input[type=text],select,textarea{width:100%;border:1.5px solid var(--line);border-radius:8px;font-family:'Instrument Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--bg);outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none;}
+input[type=number],input[type=text],select{height:42px;padding:0 12px;}
+textarea{padding:10px 12px;resize:none;height:80px;}
+input:focus,select:focus,textarea:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,0,42,.1);background:var(--white);}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:.85rem;}
+@media(max-width:500px){.fr{grid-template-columns:1fr;}}
+.og{display:grid;gap:.6rem;}
+.og.c2{grid-template-columns:1fr 1fr;}
+@media(max-width:500px){.og.c2{grid-template-columns:1fr;}}
+.oc{border:1.5px solid var(--line);border-radius:9px;padding:.85rem 1rem;cursor:pointer;transition:border-color .15s,background .15s;background:var(--bg);}
+.oc:hover{border-color:var(--ink);background:var(--white);}
+.oc.sel{border-color:var(--red);background:var(--red-dim);}
+.ot{font-size:13.5px;font-weight:600;color:var(--ink);}
+.os{font-size:12px;color:var(--dim);margin-top:2px;line-height:1.4;}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:.5rem;margin-top:.5rem;}
+.ci{display:flex;align-items:center;gap:8px;padding:.5rem .75rem;border:1.5px solid var(--line);border-radius:7px;cursor:pointer;background:var(--bg);transition:border-color .15s,background .15s;user-select:none;}
+.ci:hover{border-color:var(--ink);}
+.ci.chk{border-color:var(--green);background:var(--green-dim);}
+.cb{width:16px;height:16px;border:1.5px solid var(--line);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--white);background:var(--white);transition:background .15s,border-color .15s;}
+.ci.chk .cb{background:var(--green);border-color:var(--green);}
+.cl{font-size:13px;color:var(--ink);}
+.al{padding:.85rem 1rem;border-radius:8px;font-size:13px;line-height:1.6;margin-top:.75rem;display:flex;gap:.6rem;align-items:flex-start;}
+.aw{background:var(--gold-dim);border:1px solid #e8d88a;color:var(--gold);}
+.ar{background:var(--red-dim);border:1px solid #f0b8c0;color:var(--red);}
+.ag{background:var(--green-dim);border:1px solid #a8dfc0;color:var(--green);}
+.ab{background:var(--blue-dim);border:1px solid #a0c4f8;color:var(--blue);}
+.sn{display:flex;justify-content:space-between;align-items:center;margin-top:1.25rem;gap:.75rem;}
+.bb{background:none;border:1.5px solid var(--line);border-radius:8px;padding:10px 22px;font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:500;color:var(--dim);cursor:pointer;}
+.bb:hover{border-color:var(--ink);color:var(--ink);}
+.bn{background:var(--ink);color:var(--white);border:none;border-radius:8px;padding:10px 28px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.bn:hover{background:var(--ink2);}
+.bn:disabled{opacity:.4;cursor:not-allowed;}
+.bgen{background:var(--red);color:var(--white);border:none;border-radius:8px;padding:12px 32px;font-family:'Syne',sans-serif;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;}
+.bgen:hover{opacity:.88;}
+.bgen:disabled{opacity:.4;cursor:not-allowed;}
+.sp{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .65s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+/* RESULT DOC */
+.rdoc{background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:2rem;animation:fadeUp .3s ease;}
+.rdhd{background:var(--ink2);padding:1.5rem 2rem;}
+.rdtit{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--white);letter-spacing:-.02em;}
+.rdsub{font-size:12px;color:rgba(255,255,255,.4);margin-top:3px;}
+.rdmeta{display:flex;gap:2rem;margin-top:.85rem;flex-wrap:wrap;}
+.rdmi{font-size:12px;color:rgba(255,255,255,.45);}
+.rdmi strong{color:rgba(255,255,255,.8);font-weight:600;}
+/* rdsnap defined below */
+.rdsl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);margin-bottom:2px;}
+.rdsv{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;color:var(--ink);}
+.rdsec{border-bottom:1px solid var(--line);}
+.rdsec:last-of-type{border-bottom:none;}
+.rdsh{background:#f7f6f2;padding:.7rem 2rem;display:flex;align-items:center;gap:.6rem;}
+.rdsi{font-size:14px;}
+.rdst{font-family:'Syne',sans-serif;font-size:.73rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--ink);}
+.rdsb{padding:1.2rem 2rem;}
+.wt{width:100%;border-collapse:collapse;font-size:13px;}
+.wt th{text-align:left;padding:.5rem .7rem;background:var(--ink2);color:rgba(255,255,255,.6);font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.wt td{padding:.6rem .7rem;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+.wt tr:nth-child(even) td{background:#fafaf8;}
+.wt tr:last-child td{border-bottom:none;}
+.dt{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;}
+.tmod{background:var(--blue-dim);color:var(--blue);}
+.tvig{background:var(--orange-dim);color:var(--orange);}
+.tstr{background:var(--green-dim);color:var(--green);}
+.trest{background:var(--line);color:var(--dim);}
+.trun{background:#d8f5e8;color:#006e3c;}
+.tflex{background:var(--purple-dim);color:var(--purple);}
+.trec{background:var(--gold-dim);color:var(--gold);}
+.pgt{width:100%;border-collapse:collapse;font-size:13px;}
+.pgt th{text-align:left;padding:.5rem .7rem;background:var(--ink2);color:rgba(255,255,255,.6);font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.pgt td{padding:.6rem .7rem;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+.pgt tr:nth-child(even) td{background:#fafaf8;}
+.pgt tr:last-child td{border-bottom:none;}
+.pgw{font-family:'Syne',sans-serif;font-weight:700;color:var(--red);font-size:.82rem;}
+.rxdg{display:grid;grid-template-columns:175px 1fr;gap:0;}
+.rxdr{display:contents;}
+.rxdr>.rxdl{font-size:12.5px;font-weight:600;color:var(--dim);padding:.5rem 0;border-bottom:1px solid var(--line);}
+.rxdr>.rxdv{font-size:13.5px;color:var(--ink);padding:.5rem 0 .5rem .75rem;border-bottom:1px solid var(--line);line-height:1.55;}
+.rxdr:last-child>.rxdl,.rxdr:last-child>.rxdv{border-bottom:none;}
+.hzr{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.65rem;}
+.hzc{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:.85rem 1rem;}
+.hzl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px;}
+.hzb{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;}
+.hzn{font-size:11.5px;color:var(--dim);margin-top:2px;line-height:1.4;}
+.tpl{display:flex;flex-direction:column;gap:.6rem;}
+.tpr{display:flex;gap:.85rem;align-items:flex-start;}
+.tpn{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--red);opacity:.35;line-height:1;flex-shrink:0;}
+.tpt{font-size:13.5px;color:var(--ink);line-height:1.65;}
+.lddoc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:3rem 1.5rem;background:var(--white);border:1px solid var(--line);border-radius:14px;margin-top:2rem;}
+.ldtx{font-size:13px;color:var(--dim);}
+.ldst{display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem;min-width:220px;}
+.ldsi{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:.5rem;}
+.ldsi.dn{color:var(--green);}
+.ldsi.ac{color:var(--ink);font-weight:500;}
+.rdf{padding:.9rem 2rem;background:#f7f6f2;font-size:11.5px;color:var(--dim);border-top:1px solid var(--line);}
+.rstb{background:none;border:1px solid var(--line);border-radius:8px;padding:8px 20px;font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--dim);cursor:pointer;display:block;margin:1rem auto 0;}
+.rstb:hover{border-color:var(--ink);color:var(--ink);}
+section{padding:3.5rem 2rem;}
+.ct{max-width:960px;margin:0 auto;}
+.sk{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--red);margin-bottom:.75rem;}
+.stit{font-family:'Syne',sans-serif;font-weight:700;font-size:clamp(1.5rem,4vw,2rem);line-height:1.1;letter-spacing:-.02em;margin-bottom:.9rem;}
+.ssub{font-size:.95rem;color:var(--dim);max-width:500px;line-height:1.65;}
+hr.dv{border:none;border-top:1px solid var(--line);margin:0;}
+.pcs{background:var(--ink2);}
+.pcs .stit{color:var(--white);}
+.pcs .ssub{color:rgba(255,255,255,.5);}
+.pcs .sk{color:var(--green);}
+.pcg{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:.9rem;margin-top:1.75rem;}
+.pcc{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:1.35rem;}
+.pcl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;}
+.pcc h4{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;color:var(--white);margin-bottom:.4rem;}
+.pcc p{font-size:13px;color:rgba(255,255,255,.5);line-height:1.6;}
+.pci{font-size:11.5px;color:rgba(255,255,255,.3);margin-top:.5rem;font-style:italic;}
+.fql{margin-top:1.75rem;display:flex;flex-direction:column;gap:.5rem;}
+.fqi{background:var(--white);border:1px solid var(--line);border-radius:10px;overflow:hidden;}
+.fqq{width:100%;background:none;border:none;text-align:left;padding:.9rem 1.25rem;font-family:'Instrument Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:1rem;}
+.fqq:hover{background:var(--bg);}
+.fqa{font-size:11px;color:var(--dim);transition:transform .2s;flex-shrink:0;}
+.fqb{font-size:13.5px;color:var(--dim);line-height:1.65;padding:0 1.25rem 1rem;display:none;}
+.fqi.op .fqb{display:block;}
+.fqi.op .fqa{transform:rotate(180deg);}
+footer{background:var(--ink2);padding:2.5rem 2rem 2rem;}
+.fi{max-width:960px;margin:0 auto;}
+.flo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;color:var(--white);margin-bottom:.25rem;}
+.flo span{color:var(--red);}
+.ftg{font-size:13px;color:rgba(255,255,255,.3);margin-bottom:1.5rem;}
+.fcc{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;padding:1.25rem 0;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:1.25rem;}
+@media(max-width:540px){.fcc{grid-template-columns:1fr;gap:1rem;}}
+.fc h5{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.6rem;}
+.fc a,.fc p{font-size:13px;color:rgba(255,255,255,.35);text-decoration:none;display:block;margin-bottom:.35rem;}
+.fc a:hover{color:rgba(255,255,255,.75);}
+.fbt{font-size:11.5px;color:rgba(255,255,255,.2);}
+
+/* ── RESULT DOCUMENT — template matched ── */
+.rdoc{background:var(--white);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:2rem;animation:fadeUp .3s ease;}
+.rdhd{background:var(--ink2);padding:1.5rem 2rem;}
+.rdtit{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;color:var(--white);letter-spacing:-.02em;}
+.rdsub{font-size:12px;color:rgba(255,255,255,.4);margin-top:3px;}
+.rdmeta{display:flex;gap:2rem;margin-top:.85rem;flex-wrap:wrap;}
+.rdmi{font-size:12px;color:rgba(255,255,255,.45);}
+.rdmi strong{color:rgba(255,255,255,.8);font-weight:600;}
+
+/* Patient snapshot */
+.rdsnap{padding:1.25rem 2rem;background:#f7f6f2;border-bottom:1px solid var(--line);}
+.snap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem 1.25rem;}
+@media(max-width:640px){.snap-grid{grid-template-columns:repeat(2,1fr);}}
+.snap-item{display:flex;flex-direction:column;gap:3px;}
+.snapl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);}
+.snapv{font-size:14px;font-weight:600;color:var(--ink);line-height:1.3;}
+.snap2col{display:grid;grid-template-columns:1fr 1fr;gap:.25rem .5rem;margin-bottom:.75rem;}
+.snaprow{display:flex;gap:.5rem;align-items:baseline;}
+.snaphr{display:flex;gap:2rem;padding:.6rem 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:.6rem;}
+.snaphritem{display:flex;flex-direction:column;gap:2px;}
+.snaphrval{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--ink);}
+.snaphrnote{font-size:11px;color:var(--dim);}
+.snapextra{display:flex;gap:.5rem;align-items:baseline;flex-wrap:wrap;}
+
+/* Section structure */
+.rdsec{border-bottom:1px solid var(--line);}
+.rdsec:last-of-type{border-bottom:none;}
+.rdsh{background:#f7f6f2;padding:.65rem 2rem;display:flex;align-items:center;gap:.6rem;border-bottom:1px solid var(--line);}
+.rdsi{font-size:14px;}
+.rdst{font-family:'Syne',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);}
+.rdsb{padding:1.25rem 2rem;}
+
+/* Prescription detail table */
+.rxtbl{width:100%;border-collapse:collapse;font-size:13.5px;}
+.rxtbl .rxl{font-weight:600;color:var(--dim);padding:.55rem .75rem .55rem 0;border-bottom:1px solid var(--line);width:200px;vertical-align:top;}
+.rxtbl .rxv{padding:.55rem 0 .55rem .5rem;border-bottom:1px solid var(--line);color:var(--ink);line-height:1.55;}
+.rxtbl tr:last-child .rxl,.rxtbl tr:last-child .rxv{border-bottom:none;}
+
+/* Intensity zone table */
+.iztbl{width:100%;border-collapse:collapse;font-size:13px;}
+.iztbl th{text-align:left;padding:.5rem .75rem;background:var(--ink2);color:rgba(255,255,255,.65);font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.iztbl td{padding:.65rem .75rem;border-bottom:1px solid var(--line);line-height:1.5;}
+.iztbl tr:last-child td{border-bottom:none;}
+.iztbl tr:nth-child(2) td{background:#fafaf8;}
+
+/* Goal strip */
+.goalstrip{margin-top:.85rem;font-size:12.5px;font-weight:600;color:var(--green);padding:.65rem .9rem;background:var(--green-dim);border-radius:7px;border:1px solid #a8dfc0;}
+
+/* Exercise table */
+.subtit{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin:1.1rem 0 .5rem;}
+.extbl{width:100%;border-collapse:collapse;font-size:13px;}
+.extbl th{text-align:left;padding:.5rem .75rem;background:var(--ink2);color:rgba(255,255,255,.65);font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.extbl td{padding:.55rem .75rem;border-bottom:1px solid var(--line);line-height:1.5;}
+.extbl tr.alt td{background:#fafaf8;}
+.extbl tr:last-child td{border-bottom:none;}
+
+/* Quote strip */
+.quotestrip{margin-top:.85rem;font-size:13px;font-style:italic;color:var(--dim);padding:.65rem .9rem;background:var(--bg);border-radius:7px;border:1px solid var(--line);line-height:1.65;}
+
+/* Weekly schedule table */
+.weektbl{width:100%;border-collapse:collapse;font-size:13px;}
+.weektbl th{text-align:left;padding:.5rem .75rem;background:var(--ink2);color:rgba(255,255,255,.65);font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.weektbl td{padding:.65rem .75rem;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+.weektbl tr:nth-child(even) td{background:#fafaf8;}
+.weektbl tr:last-child td{border-bottom:none;}
+
+/* Progression table */
+.progtbl{width:100%;border-collapse:collapse;font-size:13px;}
+.progtbl th{text-align:left;padding:.5rem .75rem;background:var(--ink2);color:rgba(255,255,255,.65);font-family:'Syne',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
+.progtbl td{padding:.6rem .75rem;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.5;}
+.progtbl tr.alt td{background:#fafaf8;}
+.progtbl tr:last-child td{border-bottom:none;}
+
+/* Tips */
+.tpl{display:flex;flex-direction:column;gap:.6rem;}
+.tpr{display:flex;gap:.85rem;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--line);}
+.tpr:last-child{border-bottom:none;padding-bottom:0;}
+.tpnum{font-family:'Syne',sans-serif;font-weight:800;font-size:1.2rem;color:var(--red);opacity:.3;line-height:1;flex-shrink:0;min-width:24px;}
+.tpt{font-size:13.5px;color:var(--ink);line-height:1.7;}
+
+/* Footer */
+.rdf{padding:.9rem 2rem;background:#f7f6f2;font-size:11.5px;color:var(--dim);border-top:1px solid var(--line);}
+.rstb{background:none;border:1px solid var(--line);border-radius:8px;padding:8px 20px;font-family:'Instrument Sans',sans-serif;font-size:13px;color:var(--dim);cursor:pointer;display:block;margin:1rem auto 0;}
+.rstb:hover{border-color:var(--ink);color:var(--ink);}
+
+/* Day intensity tags */
+.dt{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;white-space:nowrap;}
+.tstr{background:var(--green-dim);color:var(--green);}
+.tmod{background:var(--blue-dim);color:var(--blue);}
+.tvig{background:var(--orange-dim);color:var(--orange);}
+.trun{background:#d8f5e8;color:#006e3c;}
+.trest{background:var(--line);color:var(--dim);}
+.tflex{background:var(--purple-dim);color:var(--purple);}
+.trec{background:var(--gold-dim);color:var(--gold);}
+
+/* Loading */
+.lddoc{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:3rem 1.5rem;background:var(--white);border:1px solid var(--line);border-radius:14px;margin-top:2rem;}
+.ldtx{font-size:13px;color:var(--dim);}
+.ldst{display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem;min-width:220px;}
+.ldsi{font-size:12px;color:var(--dim);display:flex;align-items:center;gap:.5rem;}
+.ldsi.dn{color:var(--green);}
+.ldsi.ac{color:var(--ink);font-weight:500;}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(10,10,10,.6);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;animation:fadeIn .2s ease;}
+.modal{background:var(--white);border-radius:14px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:slideUp .25s ease;}
+.modal-head{padding:1rem 1.25rem;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--white);z-index:1;}
+.modal-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:-.01em;}
+.modal-close{background:none;border:none;font-size:1.25rem;color:var(--dim);cursor:pointer;padding:4px 8px;border-radius:6px;}
+.modal-close:hover{background:var(--bg);color:var(--ink);}
+.ex-gif{width:100%;max-width:280px;border-radius:10px;display:block;margin:0 auto .85rem;border:1px solid var(--line);}
+.ex-gif-ph{width:100%;height:160px;background:var(--bg);border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:13px;margin-bottom:.85rem;}
+.ex-muscles{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.85rem;}
+.ex-mtag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--green-dim);color:var(--green);}
+.ex-steps{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-bottom:.85rem;}
+.ex-step{display:flex;gap:.75rem;font-size:13.5px;line-height:1.6;color:var(--ink);}
+.ex-snum{font-family:'Syne',sans-serif;font-weight:800;color:var(--red);opacity:.4;flex-shrink:0;min-width:20px;}
+.ex-tip{background:var(--gold-dim);border:1px solid #e8d88a;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:var(--gold);line-height:1.6;margin-bottom:.75rem;}
+.ex-mod{background:var(--blue-dim);border:1px solid #a0c4f8;border-radius:8px;padding:.75rem 1rem;font-size:13px;color:var(--blue);line-height:1.6;}
+.htb{background:none;border:1px solid var(--line);border-radius:6px;padding:2px 8px;font-family:'Instrument Sans',sans-serif;font-size:11px;color:var(--dim);cursor:pointer;margin-left:4px;transition:all .15s;white-space:nowrap;}
+.htb:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-dim);}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-logo">VO2<span>Strength</span></div>
+  <ul class="nav-links">
+    <li><a href="#intake">Get My Plan</a></li>
+    <li><a href="#running">Running Paces</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <button class="nav-cta" onclick="document.getElementById('intake').scrollIntoView({behavior:'smooth'})">Start Free</button>
+</nav>
+<section class="hero">
+  <div class="hero-kicker">Exercise Science · Built by a Clinical Exercise Physiologist</div>
+  <h1>Train smarter.<br><em>Perform better.</em></h1>
+  <p class="hero-sub">Answer a few questions and get a complete personalized exercise prescription grounded in current exercise science.</p>
+  <div class="hero-btns">
+    <a href="#intake" class="btn-p">Get My Plan</a>
+    <a href="#how" class="btn-g">How It Works</a>
+  </div>
+</section>
+<hr class="dv">
+<div id="intake" class="main">
+  <div class="pw" id="pwrap">
+    <div class="pt"><span class="pl" id="plbl">Step 1 of 8</span><span class="pc" id="pname">About You</span></div>
+    <div class="pb"><div class="pf" id="pfill" style="width:12.5%"></div></div>
+  </div>
+  <div id="stepc"></div>
+  <div id="result" style="display:none;"></div>
+</div>
+<hr class="dv">
+<section class="pcs" id="running">
+  <div class="ct">
+    <div class="sk">Running Science</div>
+    <h2 class="stit">Training paces explained</h2>
+    <p class="ssub">Each zone targets a different physiological adaptation. Your running plan uses all five.</p>
+    <div class="pcg">
+      <div class="pcc"><div class="pcl" style="color:#6ecfa0;">Easy Pace</div><h4>Foundation Building</h4><p>Warm-ups, cool-downs, and long runs. Conversational. Builds aerobic base.</p><div class="pci">65–79% HRmax</div></div>
+      <div class="pcc"><div class="pcl" style="color:#7ab3f0;">Marathon Pace</div><h4>Race Conditioning</h4><p>Sustained effort at goal marathon intensity. Teaches race pace efficiency.</p><div class="pci">80–90% HRmax</div></div>
+      <div class="pcc"><div class="pcl" style="color:#f4b86e;">Threshold Pace</div><h4>Lactate Threshold</h4><p>Comfortably hard running or cruise intervals. Raises the sustainable ceiling.</p><div class="pci">88–92% HRmax</div></div>
+      <div class="pcc"><div class="pcl" style="color:#f48080;">Interval Pace</div><h4>VO2max Development</h4><p>Hard 3–5 min efforts. 800m–1000m repeats. Maximizes VO2max.</p><div class="pci">98–100% HRmax</div></div>
+      <div class="pcc"><div class="pcl" style="color:#c8a8ff;">Rep Pace</div><h4>Speed & Economy</h4><p>Short fast efforts (200–400m) with full recovery. Improves running economy.</p><div class="pci">~1500m race pace · Full recovery</div></div>
+    </div>
+  </div>
+</section>
+<hr class="dv">
+<section id="how">
+  <div class="ct">
+    <div class="sk">Process</div>
+    <h2 class="stit">How it works</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-top:1.75rem;">
+      <div style="background:var(--white);border:1px solid var(--line);border-radius:12px;padding:1.4rem;"><div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--red);opacity:.25;margin-bottom:.5rem;">01</div><h4 style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.35rem;">Complete your profile</h4><p style="font-size:13px;color:var(--dim);line-height:1.6;">Answer detailed questions about your body, goals, activity history, chronic conditions, and available equipment.</p></div>
+      <div style="background:var(--white);border:1px solid var(--line);border-radius:12px;padding:1.4rem;"><div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--red);opacity:.25;margin-bottom:.5rem;">02</div><h4 style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.35rem;">We build your plan</h4><p style="font-size:13px;color:var(--dim);line-height:1.6;">AI generates a complete prescription — aerobic, resistance, flexibility, weekly schedule, and 4-week progression.</p></div>
+      <div style="background:var(--white);border:1px solid var(--line);border-radius:12px;padding:1.4rem;"><div style="font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--red);opacity:.25;margin-bottom:.5rem;">03</div><h4 style="font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.35rem;">Train with confidence</h4><p style="font-size:13px;color:var(--dim);line-height:1.6;">Your plan includes HR zones, progression guidance, and tips — all tailored to your exact profile.</p></div>
+    </div>
+  </div>
+</section>
+<hr class="dv">
+<section id="faq">
+  <div class="ct">
+    <div class="sk">FAQ</div>
+    <h2 class="stit">Common questions</h2>
+    <div class="fql">
+      <div class="fqi"><button class="fqq" onclick="tfaq(this)">What makes VO2Strength different?<span class="fqa">&#9660;</span></button><div class="fqb">Built by a Clinical Exercise Physiologist — not a personal trainer or software developer. Every recommendation is grounded in current peer-reviewed exercise science. Most apps generate generic plans. This generates plans the way a clinical exercise physiologist prescribes them.</div></div>
+      <div class="fqi"><button class="fqq" onclick="tfaq(this)">How are my heart rate zones calculated?<span class="fqa">&#9660;</span></button><div class="fqb">Your maximum heart rate is estimated from your age using a validated formula used in clinical exercise physiology. Moderate intensity = 64–76% of max HR. Vigorous = 77–95% of max HR. All age-predicted formulas carry a margin of error of roughly ±10–12 bpm. A directly measured max HR from a supervised maximal exercise test is always more accurate.</div></div>
+      <div class="fqi"><button class="fqq" onclick="tfaq(this)">Is this a substitute for a doctor or personal trainer?<span class="fqa">&#9660;</span></button><div class="fqb">No. VO2Strength provides general exercise recommendations for educational purposes only. It does not diagnose injuries or medical conditions. If you have a medical condition, recent injury, or symptoms such as chest pain or dizziness, consult a licensed healthcare provider before starting.</div></div>
+      <div class="fqi"><button class="fqq" onclick="tfaq(this)">How often should I generate a new plan?<span class="fqa">&#9660;</span></button><div class="fqb">Reassess every 4–8 weeks. Once your plan feels consistently easier or you have met your goals, generate a new plan with your updated fitness level.</div></div>
+    </div>
+  </div>
+</section>
+<hr class="dv">
+<footer>
+  <div class="fi">
+    <div class="flo">VO2<span>Strength</span></div>
+    <div class="ftg">Train smarter. Perform better.</div>
+    <div class="fcc">
+      <div class="fc"><h5>Pathways</h5><a href="#intake">Health &amp; Fitness</a><a href="#intake">Running</a><a href="#intake">Sports Performance</a><a href="#intake">Field Sports</a></div>
+      <div class="fc"><h5>Learn</h5><a href="#running">Running Paces</a><a href="#how">How It Works</a><a href="#faq">FAQ</a></div>
+      <div class="fc"><h5>About</h5><p>Built by a Clinical Exercise Physiologist. Grounded in exercise science.</p></div>
+    </div>
+    <div class="fbt">© 2025 VO2Strength · Not a substitute for medical advice · Individual results may vary</div>
+  </div>
+</footer>
+<script>
+// ── Add your Anthropic API key here ──────────────────────────────
+// API key is stored securely in Netlify environment variables - not needed here
+const RAPIDAPI_KEY = '37da00927emshdd5608cdbd1e590p136c1cjsnf7bafaec0052';
+// ─────────────────────────────────────────────────────────────────
+
+let step=0;
+const A={};
+const STEPS=['about','pathway','experience','goals','activity','health','days','equipment','lifts'];
+const SNAMES=['About You','Training Pathway','Experience Level','Your Goals','Activity History','Health Status','Schedule','Equipment','Strength Baseline'];
+const T=STEPS.length;
+const EQ=['Dumbbells','Kettlebells','Cables / Cable Machine','Barbell','EZ Curl Bar','Hex Bar / Trap Bar','Plates','Bench Press (Flat)','Incline Bench','Decline Bench','Squat Rack / Power Rack','Smith Machine','Hack Squat Machine','Leg Press Machine','Leg Extension Machine','Hamstring Curl Machine','Hip Thrust Machine','Calf Raise Machine','Chest Press Machine','Pec Deck Machine','Lat Pulldown Machine','Seated Row Machine','Back Extension Machine','Pull-up Bar / Power Tower','TRX / Suspension Trainer','Resistance Bands','Loop Bands','Stability Ball','BOSU Ball','Medicine Ball','Landmine','ViPR','Battle Rope','Speed Ladder','Step-Up Box','Treadmill','Stationary Bike','Elliptical','Rowing Machine','Stairclimber','Ankle Weights'];
+const CC=['Type 2 Diabetes','Hypertension (High Blood Pressure)','Coronary Artery Disease','Heart Failure','COPD','Asthma','Osteoporosis / Osteopenia','Osteoarthritis','Rheumatoid Arthritis','Obesity (BMI >= 30)','Metabolic Syndrome','Stroke / TIA (history of)','Cancer (current or history)','Peripheral Artery Disease','Kidney Disease','Parkinson\'s Disease','Multiple Sclerosis','Depression / Anxiety','Thyroid Disease','None of the above'];
+
+function upProg(){
+  const p=((step+1)/T)*100;
+  document.getElementById('pfill').style.width=p+'%';
+  document.getElementById('plbl').textContent='Step '+(step+1)+' of '+T;
+  document.getElementById('pname').textContent=SNAMES[step];
+}
+
+function hOpts(){
+  let o='<option value="">Select height</option>';
+  for(let f=4;f<=7;f++){for(let i=0;i<12;i++){if(f===4&&i<8)continue;const v=f+"'"+i+'"';const cm=Math.round((f*12+i)*2.54);o+=`<option value="${v}" ${A.height===v?'selected':''}>${f}'${i}" (${cm} cm)</option>`;}}
+  return o;
+}
+
+function calcBMI(){
+  const age=parseInt(document.getElementById('fa')?.value);
+  const wt=parseFloat(document.getElementById('fw')?.value);
+  const hv=document.getElementById('fh')?.value;
+  if(!wt||!hv)return;
+  const m=hv.match(/(\d+)'(\d+)"/);if(!m)return;
+  const hm=(parseInt(m[1])*12+parseInt(m[2]))*0.0254;
+  const wk=wt*0.453592;
+  const bmi=wk/(hm*hm);
+  let cat=bmi<18.5?'Underweight':bmi<25?'Normal weight':bmi<30?'Overweight':'Obese';
+  const mx=age?Math.round(208-0.7*age):null;
+  const d=document.getElementById('bmid');
+  const t=document.getElementById('bmit');
+  if(d&&t){t.textContent='BMI: '+bmi.toFixed(1)+' ('+cat+')'+(mx?' · Max predicted HR (age-based estimate): '+mx+' bpm':'');d.style.display='flex';}
+}
+
+function gExtras(){ return gExtrasMulti(); }
+
+function actAlert(){
+  if(A.doCardio==='No — not currently' && A.doResist==='No — not currently'){
+    return'<div class="al aw">&#9888; You are currently not exercising. Your plan will start conservatively with moderate intensity and build gradually. If you have any known health conditions, physician clearance is recommended before starting a vigorous program.</div>';
+  }
+  if(A.doCardio==='Yes — regularly'||A.doResist==='Yes — regularly'){
+    return'<div class="al ag">&#10003; You are currently active. Your plan will build on your existing fitness.</div>';
+  }
+  return'';
+}
+
+function condAlert(){
+  const c=A.conds||[];
+  if(!c.length||c.includes('None of the above'))return'';
+  if(c.some(x=>['Coronary Artery Disease','Heart Failure','Stroke / TIA (history of)','Peripheral Artery Disease'].includes(x)))return'<div class="al ar">&#9888; You selected a cardiovascular condition. Physician clearance is strongly recommended before starting or changing an exercise program. Your plan will follow conservative, condition-specific guidelines.</div>';
+  return'<div class="al ab">&#128203; Your plan will incorporate condition-specific exercise guidelines for the conditions you selected.</div>';
+}
+
+function daysGuide(){
+  if(!A.days)return'';
+  const d=parseInt(A.days);
+  if(d===1)return'<div class="al aw">&#128170; One day meets the minimum resistance training threshold but adding even one more day significantly improves results. Your plan will be comprehensive for that session.</div>';
+  if(d<=3)return'<div class="al ag">&#10003; '+d+' days meets recommended physical activity guidelines. Your plan will balance cardio and resistance training efficiently.</div>';
+  if(d>=6)return'<div class="al ab">&#128161; '+d+' days is an ambitious commitment. Your plan will prioritize adequate recovery between sessions.</div>';
+  return'';
+}
+
+function selOpt(k,v,el){
+  A[k]=v;
+  el.closest('.og').querySelectorAll('.oc').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  if(k==='ar'){const a=document.getElementById('aact');if(a)a.innerHTML=actAlert();}
+  if(k==='days'){const dg=document.getElementById('dguide');if(dg)dg.innerHTML=daysGuide();}
+  if(k==='pathway')renderStep();
+}
+
+function togGoal(id,el){
+  if(!A.goals) A.goals=[];
+  const idx=A.goals.indexOf(id);
+  if(idx>-1){A.goals.splice(idx,1);el.classList.remove('sel');}
+  else{A.goals.push(id);el.classList.add('sel');}
+  document.getElementById('gex').innerHTML=gExtrasMulti();
+}
+
+function gExtrasMulti(){
+  let out='';
+  if((A.goals||[]).includes('weight_loss')){
+    out+=`<div class="fl"><label class="flb">Target weight (lbs) — optional</label><input type="number" id="ftw" placeholder="e.g. 165" value="${A.targetWeight||''}"/></div>
+    <div class="fl"><label class="flb">Goal timeline</label><select id="ftl"><option value="">Select</option><option value="1-3 months" ${A.gt==='1-3 months'?'selected':''}>1–3 months</option><option value="3-6 months" ${A.gt==='3-6 months'?'selected':''}>3–6 months</option><option value="6-12 months" ${A.gt==='6-12 months'?'selected':''}>6–12 months</option><option value="1+ year" ${A.gt==='1+ year'?'selected':''}>1+ year</option></select></div>
+    <div class="al ab">&#128161; Safe rate: 0.5–1 lb/week. We will assess your timeline and guide you if adjustment is needed.</div>`;
+  }
+  if((A.goals||[]).includes('sport_specific')||(A.goals||[]).includes('athletic_performance')){
+    out+=`<div class="fl" style="margin-top:.75rem;"><label class="flb">Which sport or activity?</label><input type="text" id="fsport2" placeholder="e.g. Soccer, Basketball, Marathon running, CrossFit" value="${A.sport||''}"/></div>`;
+  }
+  if((A.goals||[]).includes('other')){
+    out+=`<div class="fl" style="margin-top:.75rem;"><label class="flb">Describe your goal</label><textarea id="fog" placeholder="Tell us what you are working toward...">${A.og||''}</textarea></div>`;
+  }
+  return out;
+}
+
+function togCond(el,name){
+  if(!A.conds)A.conds=[];
+  if(name==='None of the above'){
+    A.conds=['None of the above'];
+    document.querySelectorAll('#condgrid .ci').forEach(i=>{i.classList.remove('chk');i.querySelector('.cb').textContent='';});
+    el.classList.add('chk');el.querySelector('.cb').textContent='✓';
+  } else {
+    A.conds=A.conds.filter(c=>c!=='None of the above');
+    const idx=A.conds.indexOf(name);
+    if(idx>-1){A.conds.splice(idx,1);el.classList.remove('chk');el.querySelector('.cb').textContent='';}
+    else{A.conds.push(name);el.classList.add('chk');el.querySelector('.cb').textContent='✓';}
+  }
+  const ca=document.getElementById('cond-alert');if(ca)ca.innerHTML=condAlert();
+}
+
+function togExPref(el,name){
+  if(!A.exPrefs)A.exPrefs=[];
+  const idx=A.exPrefs.indexOf(name);
+  if(idx>-1){A.exPrefs.splice(idx,1);el.classList.remove('sel');}
+  else{A.exPrefs.push(name);el.classList.add('sel');}
+}
+function togCardio(el,name){
+  if(!A.cardioPrefs)A.cardioPrefs=[];
+  const idx=A.cardioPrefs.indexOf(name);
+  if(idx>-1){A.cardioPrefs.splice(idx,1);el.classList.remove('sel');}
+  else{A.cardioPrefs.push(name);el.classList.add('sel');}
+}
+function togEq(el,name){
+  if(!A.eq)A.eq=[];
+  const idx=A.eq.indexOf(name);
+  if(idx>-1){A.eq.splice(idx,1);el.classList.remove('chk');el.querySelector('.cb').textContent='';}
+  else{A.eq.push(name);el.classList.add('chk');el.querySelector('.cb').textContent='✓';}
+}
+
+function selAll(){A.eq=[...EQ];document.querySelectorAll('#eqgrid .ci').forEach(el=>{el.classList.add('chk');el.querySelector('.cb').textContent='✓';});}
+function clrAll(){A.eq=[];document.querySelectorAll('#eqgrid .ci').forEach(el=>{el.classList.remove('chk');el.querySelector('.cb').textContent='';});}
+
+function gymPreset(v){
+  A.gymType=v;
+  const p={large:EQ,medium:['Dumbbells','Kettlebells','Cables / Cable Machine','Barbell','Bench Press (Flat)','Incline Bench','Squat Rack / Power Rack','Leg Press Machine','Leg Extension Machine','Hamstring Curl Machine','Lat Pulldown Machine','Seated Row Machine','Pull-up Bar / Power Tower','Resistance Bands','Stability Ball','Treadmill','Stationary Bike','Elliptical','Stairclimber'],small:['Dumbbells','Resistance Bands','Treadmill','Stationary Bike','Elliptical'],home:['Dumbbells','Resistance Bands','Loop Bands'],outdoor:[]};
+  if(p[v]){A.eq=[...p[v]];document.querySelectorAll('#eqgrid .ci').forEach(el=>{const l=el.querySelector('.cl').textContent;const chk=A.eq.includes(l);el.classList.toggle('chk',chk);el.querySelector('.cb').textContent=chk?'✓':'';});}
+}
+
+function saveStep(){
+  const s=STEPS[step];
+  if(s==='about'){A.name=document.getElementById('fn')?.value||'';A.age=document.getElementById('fa')?.value||'';A.sex=document.getElementById('fs')?.value||'';A.height=document.getElementById('fh')?.value||'';A.weight=document.getElementById('fw')?.value||'';}
+  if(s==='pathway'){if(document.getElementById('fsport'))A.sport=document.getElementById('fsport').value;if(document.getElementById('frt'))A.raceTime=document.getElementById('frt').value;}
+  if(s==='goals'){if(document.getElementById('ftw'))A.targetWeight=document.getElementById('ftw').value;if(document.getElementById('ftl'))A.gt=document.getElementById('ftl').value;if(document.getElementById('fog'))A.og=document.getElementById('fog').value;if(document.getElementById('fsport2'))A.sport=document.getElementById('fsport2').value;}
+  if(s==='activity'){
+    A.limits=document.getElementById('flim')?.value||'';
+    A.flexRoutine=document.getElementById('fflex')?.value||'';
+    if(document.getElementById('fcardiodays'))A.cardioDays=document.getElementById('fcardiodays').value;
+    if(document.getElementById('fcardiodur'))A.cardioDur=document.getElementById('fcardiodur').value;
+    if(document.getElementById('fresistdays'))A.resistDays=document.getElementById('fresistdays').value;
+    if(document.getElementById('fresistdur'))A.resistDur=document.getElementById('fresistdur').value;
+  }
+  if(s==='days'){A.sessLen=document.getElementById('fdur')?.value||'';A.timeOfDay=document.getElementById('ftod')?.value||'';A.hrMonitor=document.getElementById('fhrm')?.value||'';}
+  if(s==='equipment'){A.gymType=document.getElementById('fgt')?.value||A.gymType||'';}
+  if(s==='lifts'){
+    const liftIds=['squat','bench','deadlift','ohp','row','pullup','legpress','curl'];
+    A.lifts={};
+    liftIds.forEach(id=>{
+      const v1=document.getElementById('lift_1rm_'+id)?.value;
+      const v10=document.getElementById('lift_10rm_'+id)?.value;
+      if(v1||v10){
+        const orm1=parseFloat(v1)||null;
+        const orm10=parseFloat(v10)||null;
+        const est1rm=orm1?orm1:(orm10?Math.round(orm10*(1+10/30)):null);
+        A.lifts[id]={orm1,orm10,est1rm};
+      }
+    });
+  }
+}
+
+function validate(){
+  const s=STEPS[step];
+  if(s==='about'&&(!A.age||!A.sex||!A.height||!A.weight)){alert('Please fill in all fields to continue.');return false;}
+  if(s==='pathway'&&!A.pathway){alert('Please select a training pathway.');return false;}
+  if(s==='experience'&&!A.level){alert('Please select your experience level.');return false;}
+  if(s==='goals'&&(!A.goals||!A.goals.length)){alert('Please select at least one goal.');return false;}
+  if(s==='activity'&&(!A.doCardio||!A.doResist)){alert('Please indicate whether you currently do cardio and resistance training.');return false;}
+  if(s==='days'&&!A.days){alert('Please select how many days per week.');return false;}
+  if(s==='equipment'&&(!A.eq||!A.eq.length)){alert('Please select at least one piece of equipment.');return false;}
+  return true;
+}
+
+function nextStep(){saveStep();if(!validate())return;step++;renderStep();document.getElementById('intake').scrollIntoView({behavior:'smooth',block:'start'});}
+function prevStep(){saveStep();step--;renderStep();document.getElementById('intake').scrollIntoView({behavior:'smooth',block:'start'});}
+
+function navBtns(){
+  const last=step===T-1;
+  return`<div class="sn">${step>0?'<button class="bb" onclick="prevStep()">&#8592; Back</button>':'<div></div>'}${last?'<button class="bgen" id="gbtn" onclick="doGen()">&#9889; Generate My Plan</button>':'<button class="bn" onclick="nextStep()">Next &#8594;</button>'}</div>`;
+}
+
+function renderStep(){
+  upProg();
+  const s=STEPS[step];
+  let h='';
+
+  if(s==='about'){
+    h=`<div class="sc"><div class="sh"><div class="si">&#128100;</div><div><div class="st">Tell us about yourself</div><div class="ss">Used to calculate your heart rate zones, BMI, and personalize your plan.</div></div></div><div class="sb">
+    <div class="fr"><div class="fl"><label class="flb">First Name</label><input type="text" id="fn" placeholder="Your name" value="${A.name||''}"/></div><div class="fl"><label class="flb">Age</label><input type="number" id="fa" placeholder="e.g. 35" min="14" max="90" value="${A.age||''}"/></div></div>
+    <div class="fl"><label class="flb">Sex</label><select id="fs"><option value="">Select</option><option value="Male" ${A.sex==='Male'?'selected':''}>Male</option><option value="Female" ${A.sex==='Female'?'selected':''}>Female</option><option value="Prefer not to say" ${A.sex==='Prefer not to say'?'selected':''}>Prefer not to say</option></select></div>
+    <div class="fr"><div class="fl"><label class="flb">Height</label><select id="fh">${hOpts()}</select></div><div class="fl"><label class="flb">Weight (lbs)</label><input type="number" id="fw" placeholder="e.g. 175" min="80" max="500" value="${A.weight||''}"/></div></div>
+    <div id="bmid" style="display:none;" class="al ab">&#128202; <span id="bmit"></span></div>
+    </div></div>`;
+  }
+  else if(s==='pathway'){
+    const paths=[{id:'health',ic:'&#10084;',lb:'Health & Fitness',sb:'Cardio, weight management, general strength, and longevity.',tg:'Evidence-Based'},{id:'run',ic:'&#127939;',lb:'Running Performance',sb:'Structured pace zones — Easy, Marathon, Threshold, Interval, and Rep workouts.',tg:'Pace-Based Training'},{id:'perf',ic:'&#127947;',lb:'Strength & Performance',sb:'Periodized strength, power, and conditioning for athletes.',tg:'Strength & Conditioning'},{id:'field',ic:'&#9917;',lb:'Field Sports',sb:'Speed, agility, power, and field conditioning for soccer, lacrosse, football, and more.',tg:'Sport-Specific'}];
+    h=`<div class="sc"><div class="sh"><div class="si">&#127919;</div><div><div class="st">Choose your training pathway</div><div class="ss">Select the one that best matches your goal. Each uses different programming principles.</div></div></div><div class="sb">
+    <div class="og c2">${paths.map(p=>`<div class="oc ${A.pathway===p.id?'sel':''}" onclick="selOpt('pathway','${p.id}',this)"><div style="font-size:1.4rem;margin-bottom:.35rem;">${p.ic}</div><div class="ot">${p.lb}</div><div class="os">${p.sb}</div><div style="margin-top:.4rem;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);">${p.tg}</div></div>`).join('')}</div>
+    ${A.pathway==='field'?`<div class="fl" style="margin-top:1rem;"><label class="flb">Which sport?</label><input type="text" id="fsport" placeholder="e.g. Soccer, Lacrosse, Football, Rugby" value="${A.sport||''}"/></div>`:''}
+    ${A.pathway==='run'?`<div class="fl" style="margin-top:1rem;"><label class="flb">Recent race time (optional — for more precise paces)</label><input type="text" id="frt" placeholder="e.g. 5K in 24:30 or 10K in 52:00" value="${A.raceTime||''}"/></div>`:''}
+    </div></div>`;
+  }
+  else if(s==='experience'){
+    const lvls=[{id:'beginner',lb:"I'm new to the gym",sb:"Just starting out or returning after a long break. Most exercises and machines are still unfamiliar."},{id:'intermediate',lb:"I know my way around",sb:"Training 6+ months. Comfortable with basic exercises, proper form, and most equipment."},{id:'advanced',lb:"Training is part of my lifestyle",sb:"Consistent for 2+ years. I understand progressive overload, periodization, and exercise technique."}];
+    h=`<div class="sc"><div class="sh"><div class="si">&#128170;</div><div><div class="st">What is your experience level?</div><div class="ss">Be honest — this directly affects your sets, reps, intensity, and exercise selection.</div></div></div><div class="sb">
+    <div class="og">${lvls.map(l=>`<div class="oc ${A.level===l.id?'sel':''}" onclick="selOpt('level','${l.id}',this)"><div class="ot">${l.lb}</div><div class="os">${l.sb}</div></div>`).join('')}</div>
+    </div></div>`;
+  }
+  else if(s==='goals'){
+    const goals=[
+      {id:'general_health',lb:'General Health & Longevity',sb:'Stay active and feel better overall'},
+      {id:'weight_loss',lb:'Weight Loss',sb:'Reduce body fat and reach a healthier weight'},
+      {id:'build_strength',lb:'Build Strength & Muscle',sb:'Get stronger and increase lean mass'},
+      {id:'improve_cardio',lb:'Improve Cardio & Endurance',sb:'Better stamina and aerobic fitness'},
+      {id:'athletic_performance',lb:'Athletic Performance',sb:'Improve speed, power, and sport readiness'},
+      {id:'sport_specific',lb:'Sport-Specific Performance',sb:'Train for a specific sport or activity'},
+      {id:'chronic_disease',lb:'Manage Chronic Disease',sb:'Exercise program for a specific health condition'},
+      {id:'mobility_flexibility',lb:'Improve Mobility & Flexibility',sb:'Move better, reduce stiffness, improve range of motion'},
+      {id:'stress_relief',lb:'Stress Relief & Mental Health',sb:'Use exercise for mood, energy, and mental wellbeing'},
+      {id:'other',lb:'Other',sb:'Tell us in your own words'}
+    ];
+    if(!A.goals) A.goals=[];
+    h=`<div class="sc"><div class="sh"><div class="si">&#127945;</div><div><div class="st">What are your goals?</div><div class="ss">Select all that apply — you can have more than one goal.</div></div></div><div class="sb">
+    <div class="og c2">${goals.map(g=>`<div class="oc ${(A.goals||[]).includes(g.id)?'sel':''}" onclick="togGoal('${g.id}',this)"><div class="ot">${g.lb}</div><div class="os">${g.sb}</div></div>`).join('')}</div>
+    <div id="gex" style="margin-top:1rem;">${gExtrasMulti()}</div>
+    </div></div>`;
+  }
+  else if(s==='activity'){
+    const exPrefs={
+      'CrossFit / Functional': ['Burpees','Box Jumps','Wall Balls','Kettlebell Swings','Clean & Press','Thrusters','Double-Unders','Muscle-ups'],
+      'Strength': ['Back Squat','Deadlift','Bench Press','Overhead Press','Barbell Row','Pull-ups / Chin-ups','Romanian Deadlift','Hip Thrust'],
+      'Machine-Based': ['Leg Press','Chest Press Machine','Lat Pulldown','Seated Cable Row','Leg Extension','Hamstring Curl','Hack Squat'],
+      'Bodyweight': ['Push-ups','Lunges','Planks','Dips','Bodyweight Squats','Step-ups','Mountain Climbers'],
+      'Cardio Machines': ['Treadmill Running','Stationary Bike','Elliptical','Rowing Machine','Stairclimber'],
+      'Classes / Other': ['Yoga','Pilates','Spin Class','Zumba','HIIT Class','CrossFit Class','Martial Arts']
+    };
+    h=`<div class="sc"><div class="sh"><div class="si">&#128337;</div><div><div class="st">Current activity & exercise preferences</div><div class="ss">Tell us what you currently do and what you enjoy — we will prioritize your preferred exercises in the program.</div></div></div><div class="sb">
+
+    <div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);">&#10052; Cardio / Aerobic Activity</div>
+    <div class="fl">
+      <label class="flb">Do you currently do cardio?</label>
+      <div class="og" style="grid-template-columns:repeat(3,1fr);gap:.4rem;">
+        ${['Yes — regularly','Yes — occasionally','No — not currently'].map(v=>`<div class="oc ${A.doCardio===v?'sel':''}" style="padding:.5rem .7rem;text-align:center;" onclick="selOpt('doCardio','${v}',this)"><div class="ot" style="font-size:12.5px;">${v}</div></div>`).join('')}
+      </div>
+    </div>
+    ${A.doCardio&&A.doCardio!=='No — not currently'?`
+    <div class="fr" style="margin-top:.75rem;">
+      <div class="fl"><label class="flb">Days per week</label>
+        <select id="fcardiodays"><option value="">Select</option>${[1,2,3,4,5,6,7].map(d=>`<option value="${d}" ${A.cardioDays==d?'selected':''}>${d} day${d>1?'s':''}</option>`).join('')}</select>
+      </div>
+      <div class="fl"><label class="flb">Minutes per session</label>
+        <select id="fcardiodur"><option value="">Select</option><option value="under 20 min" ${A.cardioDur==='under 20 min'?'selected':''}>Under 20 min</option><option value="20-30 min" ${A.cardioDur==='20-30 min'?'selected':''}>20–30 min</option><option value="30-45 min" ${A.cardioDur==='30-45 min'?'selected':''}>30–45 min</option><option value="45-60 min" ${A.cardioDur==='45-60 min'?'selected':''}>45–60 min</option><option value="60+ min" ${A.cardioDur==='60+ min'?'selected':''}>60+ min</option></select>
+      </div>
+    </div>
+    <div class="fl" style="margin-top:.75rem;"><label class="flb">How hard do you push during cardio?</label>
+      <div class="og" style="gap:.4rem;">
+        <div class="oc ${A.cardioInt==='light'?'sel':''}" onclick="selOpt('cardioInt','light',this)"><div class="ot">Light</div><div class="os">Comfortable — I can hold a full conversation easily</div></div>
+        <div class="oc ${A.cardioInt==='moderate'?'sel':''}" onclick="selOpt('cardioInt','moderate',this)"><div class="ot">Moderate</div><div class="os">I can speak in sentences but not sing — noticeable effort</div></div>
+        <div class="oc ${A.cardioInt==='vigorous'?'sel':''}" onclick="selOpt('cardioInt','vigorous',this)"><div class="ot">Vigorous</div><div class="os">Only a few words between breaths — pushing hard</div></div>
+      </div>
+    </div>`:''}
+
+    <div style="font-size:13px;font-weight:700;color:var(--ink);margin:.85rem 0 .75rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);">&#128170; Resistance Training</div>
+    <div class="fl">
+      <label class="flb">Do you currently do resistance training?</label>
+      <div class="og" style="grid-template-columns:repeat(3,1fr);gap:.4rem;">
+        ${['Yes — regularly','Yes — occasionally','No — not currently'].map(v=>`<div class="oc ${A.doResist===v?'sel':''}" style="padding:.5rem .7rem;text-align:center;" onclick="selOpt('doResist','${v}',this)"><div class="ot" style="font-size:12.5px;">${v}</div></div>`).join('')}
+      </div>
+    </div>
+    ${A.doResist&&A.doResist!=='No — not currently'?`
+    <div class="fr" style="margin-top:.75rem;">
+      <div class="fl"><label class="flb">Days per week</label>
+        <select id="fresistdays"><option value="">Select</option>${[1,2,3,4,5,6,7].map(d=>`<option value="${d}" ${A.resistDays==d?'selected':''}>${d} day${d>1?'s':''}</option>`).join('')}</select>
+      </div>
+      <div class="fl"><label class="flb">Minutes per session</label>
+        <select id="fresistdur"><option value="">Select</option><option value="under 30 min" ${A.resistDur==='under 30 min'?'selected':''}>Under 30 min</option><option value="30-45 min" ${A.resistDur==='30-45 min'?'selected':''}>30–45 min</option><option value="45-60 min" ${A.resistDur==='45-60 min'?'selected':''}>45–60 min</option><option value="60-90 min" ${A.resistDur==='60-90 min'?'selected':''}>60–90 min</option><option value="90+ min" ${A.resistDur==='90+ min'?'selected':''}>90+ min</option></select>
+      </div>
+    </div>`:''}
+
+    <div style="font-size:13px;font-weight:700;color:var(--ink);margin:.85rem 0 .75rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);">&#9996; Exercise Preferences</div>
+    <div style="font-size:12.5px;color:var(--dim);margin-bottom:.75rem;">Check exercises you enjoy or already do. These will be prioritized in your program. Skip any you don't recognize or don't do.</div>
+    ${Object.entries(exPrefs).map(([cat,exs])=>`
+    <div style="margin-bottom:.75rem;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--dim);margin-bottom:.4rem;">${cat}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.4rem;">
+        ${exs.map(ex=>`<div class="oc ${(A.exPrefs||[]).includes(ex)?'sel':''}" style="padding:.35rem .7rem;border-radius:99px;" onclick="togExPref(this,'${ex}')"><div class="ot" style="font-size:12px;">${ex}</div></div>`).join('')}
+      </div>
+    </div>`).join('')}
+
+    <div style="font-size:13px;font-weight:700;color:var(--ink);margin:.85rem 0 .75rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);">&#129336; Flexibility</div>
+    <div class="fl"><label class="flb">Current stretching or flexibility routine</label>
+      <select id="fflex">
+        <option value="">Select</option>
+        <option value="none" ${A.flexRoutine==='none'?'selected':''}>None — I do not stretch</option>
+        <option value="occasional" ${A.flexRoutine==='occasional'?'selected':''}>Occasionally — after some workouts</option>
+        <option value="post-workout" ${A.flexRoutine==='post-workout'?'selected':''}>After every workout</option>
+        <option value="dedicated" ${A.flexRoutine==='dedicated'?'selected':''}>Dedicated routine on its own</option>
+        <option value="yoga" ${A.flexRoutine==='yoga'?'selected':''}>Yoga or mobility class</option>
+      </select>
+    </div>
+
+    <div style="font-size:13px;font-weight:700;color:var(--ink);margin:.85rem 0 .75rem;padding-bottom:.5rem;border-bottom:1px solid var(--line);">&#9888; Limitations</div>
+    <div class="fl"><label class="flb">Any injuries or physical limitations? (optional)</label>
+      <input type="text" id="flim" placeholder="e.g. right knee pain, low back issues, avoid overhead pressing" value="${A.limits||''}"/>
+    </div>
+    <div id="aact" style="margin-top:.85rem;">${actAlert()}</div>
+    </div></div>`;
+  }
+  else if(s==='health'){
+    h=`<div class="sc"><div class="sh"><div class="si">&#129657;</div><div><div class="st">Do you have any chronic health conditions?</div><div class="ss">Each condition has specific exercise guidelines. Select all that apply — this personalizes your plan to be safe and appropriate for your health status.</div></div></div><div class="sb">
+    <div class="cg" id="condgrid">${CC.map(c=>`<div class="ci ${(A.conds||[]).includes(c)?'chk':''}" onclick="togCond(this,'${c.replace(/'/g,"\\'")}')"><div class="cb">${(A.conds||[]).includes(c)?'✓':''}</div><span class="cl">${c}</span></div>`).join('')}</div>
+    <div id="cond-alert" style="margin-top:.85rem;">${condAlert()}</div>
+    </div></div>`;
+  }
+  else if(s==='days'){
+    h=`<div class="sc"><div class="sh"><div class="si">&#128197;</div><div><div class="st">How many days per week can you train?</div><div class="ss">Be realistic — consistency beats intensity. Pick a number you can actually commit to long-term.</div></div></div><div class="sb">
+    <div class="og" style="grid-template-columns:repeat(7,1fr);gap:.5rem;">${[1,2,3,4,5,6,7].map(d=>`<div class="oc ${A.days==d?'sel':''}" style="text-align:center;padding:.85rem .5rem;" onclick="selOpt('days',${d},this)"><div class="ot" style="font-size:1.2rem;">${d}</div><div class="os" style="font-size:11px;">${d===1?'day':'days'}</div></div>`).join('')}</div>
+    <div id="dguide" style="margin-top:.85rem;">${daysGuide()}</div>
+    <div class="fl" style="margin-top:1rem;"><label class="flb">Preferred session length</label><select id="fdur"><option value="">Select</option><option value="30 min" ${A.sessLen==='30 min'?'selected':''}>30 minutes</option><option value="45 min" ${A.sessLen==='45 min'?'selected':''}>45 minutes</option><option value="60 min" ${A.sessLen==='60 min'?'selected':''}>60 minutes</option><option value="75-90 min" ${A.sessLen==='75-90 min'?'selected':''}>75–90 minutes</option></select></div>
+    <div class="fl" style="margin-top:.75rem;">
+      <label class="flb">Do you have a heart rate monitor or smartwatch?</label>
+      <select id="fhrm" onchange="showHRMNote(this.value)">
+        <option value="">Select</option>
+        <option value="yes_chest" ${A.hrMonitor==='yes_chest'?'selected':''}>Yes — chest strap (Polar, Garmin HRM)</option>
+        <option value="yes_watch" ${A.hrMonitor==='yes_watch'?'selected':''}>Yes — smartwatch (Apple Watch, Garmin, Fitbit, Whoop)</option>
+        <option value="yes_basic" ${A.hrMonitor==='yes_basic'?'selected':''}>Yes — basic fitness tracker</option>
+        <option value="no" ${A.hrMonitor==='no'?'selected':''}>No — I do not have one</option>
+      </select>
+      <div id="hrm-note" style="margin-top:.5rem;"></div>
+    </div>
+    <div class="fl" style="margin-top:.75rem;"><label class="flb">Preferred time of day to train</label><select id="ftod"><option value="">Select</option><option value="Early morning (before 8am)" ${A.timeOfDay==='Early morning (before 8am)'?'selected':''}>Early morning (before 8am)</option><option value="Morning (8am-12pm)" ${A.timeOfDay==='Morning (8am-12pm)'?'selected':''}>Morning (8am–12pm)</option><option value="Afternoon (12pm-5pm)" ${A.timeOfDay==='Afternoon (12pm-5pm)'?'selected':''}>Afternoon (12pm–5pm)</option><option value="Evening (after 5pm)" ${A.timeOfDay==='Evening (after 5pm)'?'selected':''}>Evening (after 5pm)</option><option value="No preference" ${A.timeOfDay==='No preference'?'selected':''}>No preference</option></select></div>
+    </div></div>`;
+  }
+  else if(s==='lifts'){
+    const liftList=[
+      {id:'squat',label:'Back Squat',icon:'🏋️'},
+      {id:'bench',label:'Bench Press',icon:'💪'},
+      {id:'deadlift',label:'Deadlift',icon:'🔩'},
+      {id:'ohp',label:'Overhead Press',icon:'🙌'},
+      {id:'row',label:'Barbell / DB Row',icon:'🚣'},
+      {id:'pullup',label:'Pull-up / Lat Pulldown',icon:'⬆️'},
+      {id:'legpress',label:'Leg Press',icon:'🦵'},
+      {id:'curl',label:'Bicep Curl',icon:'💪'},
+    ];
+    h=`<div class="sc"><div class="sh"><div class="si">⚖️</div><div><div class="st">Strength baseline (optional)</div><div class="ss">Enter your best weight for key exercises. This lets us give you specific weight targets instead of generic ranges. Leave blank if you are not sure — skip any exercise you do not do.</div></div></div><div class="sb">
+    <div class="al ab" style="margin-bottom:1rem;">&#128161; Enter either a <strong>1RM</strong> (max single rep) OR a <strong>10RM</strong> (heaviest weight for 10 reps). We will calculate your working weights from either one.</div>
+    <div style="display:grid;gap:.75rem;">
+      ${liftList.map(lift=>`
+      <div style="background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:.85rem 1rem;">
+        <div style="font-size:13.5px;font-weight:600;margin-bottom:.6rem;">${lift.icon} ${lift.label}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;">
+          <div class="fl" style="margin-bottom:0;">
+            <label class="flb">1RM (lbs)</label>
+            <input type="number" id="lift_1rm_${lift.id}" placeholder="e.g. 185" min="0" max="1000" value="${(A.lifts&&A.lifts[lift.id]&&A.lifts[lift.id].orm1)||''}"/>
+          </div>
+          <div class="fl" style="margin-bottom:0;">
+            <label class="flb">10RM (lbs)</label>
+            <input type="number" id="lift_10rm_${lift.id}" placeholder="e.g. 135" min="0" max="1000" value="${(A.lifts&&A.lifts[lift.id]&&A.lifts[lift.id].orm10)||''}"/>
+          </div>
+        </div>
+        <div id="lift_calc_${lift.id}" style="margin-top:.4rem;font-size:12px;color:var(--green);font-weight:500;"></div>
+      </div>`).join('')}
+    </div>
+    <div style="margin-top:.85rem;font-size:12px;color:var(--dim);padding:.6rem .75rem;background:var(--bg);border:1px solid var(--line);border-radius:7px;">
+      <strong>Epley formula:</strong> Estimated 1RM = Weight × (1 + Reps ÷ 30). All working weights are calculated as a percentage of estimated 1RM.
+    </div>
+    </div></div>`;
+  }
+  else if(s==='equipment'){
+    h=`<div class="sc"><div class="sh"><div class="si">&#127977;</div><div><div class="st">What equipment do you have access to?</div><div class="ss">Check everything available. Your plan will only include exercises using equipment you have.</div></div></div><div class="sb">
+    <div class="fl"><label class="flb">Gym Type</label><select id="fgt" onchange="gymPreset(this.value)"><option value="">Select your gym or training location</option><option value="large" ${A.gymType==='large'?'selected':''}>Large commercial gym (Equinox, LA Fitness, Gold's, 24 Hour Fitness)</option><option value="medium" ${A.gymType==='medium'?'selected':''}>Mid-size gym (Crunch, Planet Fitness, large apartment gym, fitness club)</option><option value="small" ${A.gymType==='small'?'selected':''}>Small gym (hotel gym, small apartment gym, boutique studio)</option><option value="home" ${A.gymType==='home'?'selected':''}>Home gym</option><option value="outdoor" ${A.gymType==='outdoor'?'selected':''}>Outdoor / no gym access</option></select></div>
+    <div style="margin:.75rem 0 .4rem;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--dim);">Check everything you have access to</div>
+    <div class="cg" id="eqgrid">${EQ.map(e=>`<div class="ci ${(A.eq||[]).includes(e)?'chk':''}" onclick="togEq(this,'${e.replace(/'/g,"\\'")}')"><div class="cb">${(A.eq||[]).includes(e)?'✓':''}</div><span class="cl">${e}</span></div>`).join('')}</div>
+    <div style="display:flex;gap:.75rem;margin-top:1rem;"><button onclick="selAll()" style="font-size:12px;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:5px 12px;cursor:pointer;color:var(--dim);">Select All</button><button onclick="clrAll()" style="font-size:12px;border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:5px 12px;cursor:pointer;color:var(--dim);">Clear All</button></div>
+    </div></div>`;
+  }
+
+  document.getElementById('stepc').innerHTML=h+navBtns();
+
+  // Wire up lift calculators
+  if(STEPS[step]==='lifts'){
+    ['squat','bench','deadlift','ohp','row','pullup','legpress','curl'].forEach(id=>{
+      const i1=document.getElementById('lift_1rm_'+id);
+      const i10=document.getElementById('lift_10rm_'+id);
+      const calc=document.getElementById('lift_calc_'+id);
+      const update=()=>{
+        const v1=parseFloat(i1?.value);
+        const v10=parseFloat(i10?.value);
+        if(v1>0){
+          const pcts=[['Strength (85%)',Math.round(v1*.85)],['Hypertrophy (75%)',Math.round(v1*.75)],['Endurance (60%)',Math.round(v1*.60)]];
+          if(calc) calc.innerHTML='Est. 1RM: '+v1+'lbs → '+pcts.map(p=>p[0]+': <strong>'+p[1]+'lbs</strong>').join(' | ');
+        } else if(v10>0){
+          const est1rm=Math.round(v10*(1+10/30));
+          const pcts=[['Strength (85%)',Math.round(est1rm*.85)],['Hypertrophy (75%)',Math.round(est1rm*.75)],['Endurance (60%)',Math.round(est1rm*.60)]];
+          if(calc) calc.innerHTML='Est. 1RM: ~'+est1rm+'lbs → '+pcts.map(p=>p[0]+': <strong>'+p[1]+'lbs</strong>').join(' | ');
+        } else {
+          if(calc) calc.innerHTML='';
+        }
+      };
+      i1?.addEventListener('input',update);
+      i10?.addEventListener('input',update);
+      update();
+    });
+  }
+
+  if(s==='about'){
+    const fn=()=>calcBMI();
+    document.getElementById('fa')?.addEventListener('input',fn);
+    document.getElementById('fw')?.addEventListener('input',fn);
+    document.getElementById('fh')?.addEventListener('change',fn);
+    if(A.age&&A.weight&&A.height)calcBMI();
+  }
+}
+
+async function doGen(){
+  console.log('Generate clicked - starting');
+  saveStep();
+  console.log('Answers:', JSON.stringify({pathway:A.pathway,level:A.level,goal:A.goal,ar:A.ar,days:A.days,eq:(A.eq||[]).length}));
+  if(!validate())return;
+  console.log('Validation passed');
+  // API key handled server-side
+  const btn=document.getElementById('gbtn');
+  btn.disabled=true;btn.innerHTML='<div class="sp"></div> Generating...';
+  document.getElementById('pwrap').style.display='none';
+  document.getElementById('stepc').style.display='none';
+  const rs=document.getElementById('result');
+  rs.style.display='block';
+  rs.innerHTML=`<div class="lddoc"><div class="sp" style="width:32px;height:32px;border-width:3px;border-color:var(--line);border-top-color:var(--red);"></div><div class="ldtx">Building your personalized plan...</div><div class="ldst"><div class="ldsi ac" id="ls1">&#9679; Analyzing your profile</div><div class="ldsi" id="ls2">&#9675; Calculating heart rate zones</div><div class="ldsi" id="ls3">&#9675; Building weekly schedule</div><div class="ldsi" id="ls4">&#9675; Creating 4-week progression</div><div class="ldsi" id="ls5">&#9675; Writing your prescription</div></div></div>`;
+  rs.scrollIntoView({behavior:'smooth',block:'start'});
+
+  let ls=1;
+  const lsi=setInterval(()=>{
+    if(ls<=5){
+      if(ls>1){const p=document.getElementById('ls'+(ls-1));if(p){p.classList.remove('ac');p.classList.add('dn');p.textContent='✓ '+p.textContent.replace(/[●○] /,'');}}
+      const c=document.getElementById('ls'+ls);if(c)c.classList.add('ac');ls++;
+    }else clearInterval(lsi);
+  },700);
+
+  const age=parseInt(A.age);
+  const mx=Math.round(208-0.7*age);
+  const mL=Math.round(mx*.64),mH=Math.round(mx*.76),vL=Math.round(mx*.77),vH=Math.round(mx*.95);
+  const wLb=parseFloat(A.weight);
+  const hp=A.height?.match(/(\d+)'(\d+)"/);
+  const hIn=hp?parseInt(hp[1])*12+parseInt(hp[2]):null;
+  const hCm=hIn?Math.round(hIn*2.54):null;
+  const wKg=wLb?Math.round(wLb*0.4536):null;
+  const bmi=(wKg&&hCm)?(wKg/((hCm/100)**2)).toFixed(1):null;
+  const conds=(A.conds||[]).filter(c=>c!=='None of the above');
+  const eqList=A.eq||[];
+  const eq=eqList.length>20?eqList.slice(0,20).join(', ')+' (and '+(eqList.length-20)+' more)':eqList.join(', ');
+  const days=parseInt(A.days);
+  const dayNames=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"].slice(0,days);
+  const goalNames={general_health:'General Health & Longevity',weight_loss:'Weight Loss',build_strength:'Build Strength & Muscle',improve_cardio:'Improve Cardio & Endurance',athletic_performance:'Athletic Performance',sport_specific:'Sport-Specific Performance',chronic_disease:'Manage Chronic Disease',mobility_flexibility:'Improve Mobility & Flexibility',stress_relief:'Stress Relief & Mental Health',other:A.og||'Other'};
+  const gLabel=(A.goals||[]).map(g=>goalNames[g]||g).join(', ')||'General Health';
+  const wlNote=(A.goals||[]).includes('weight_loss')&&A.targetWeight?`Target weight: ${A.targetWeight} lbs (current: ${A.weight} lbs). Timeline goal: ${A.gt||'not specified'}. Safe loss rate = 0.5–1 lb/wk. If timeline is unrealistic, flag it and provide corrected guidance.`:'';
+
+  const sys='You are a Clinical Exercise Physiologist. Return ONLY valid JSON — no markdown, no backticks, no extra text. Never diagnose injuries. Flag cardiac conditions for physician clearance. Apply condition-specific exercise guidelines for any reported chronic diseases. Only use listed equipment. Tips = exercise physiology scope only, no nutrition Rx or medical advice. FlexibilityRx must always include frequency, hold, reps per muscle, and timing. Exercise order in weeklySchedule: power first, then large compound, then small compound, then isolation, then core last. AEROBIC TARGETS: always use 150-300 min/wk moderate OR 75-150 min/wk vigorous — never state any other target. EXERCISE PREFERENCES: if client listed preferred exercises, prioritize those in the weekly schedule and suggested exercises list.';
+
+  const prompt=`Client: ${A.name||'Client'}, Age ${age}, ${A.sex}, ${A.height}, ${A.weight}lbs, BMI ${bmi||'N/A'}
+Goal: ${gLabel} | Pathway: ${A.pathway} | Level: ${A.level}
+Days: ${days}/wk (${dayNames.join(', ')}) | Session: ${A.sessLen||'60 min'} | Time pref: ${A.timeOfDay||'any'}
+Cardio preferences: ${(A.cardioPrefs||[]).join(', ')||'no preference'}
+Current activity: Cardio=${A.doCardio||'not specified'} ${A.cardioDays?A.cardioDays+'days/wk':''} ${A.cardioDur||''} ${A.cardioInt?'at '+A.cardioInt+' intensity':''} | Resistance=${A.doResist||'not specified'} ${A.resistDays?A.resistDays+'days/wk':''} ${A.resistDur||''}
+Exercise preferences: ${(A.exPrefs||[]).length?(A.exPrefs).join(', '):'no specific preferences — use best exercises for goal'}
+Limitations: ${A.limits||'none'}
+Conditions: ${conds.length?conds.join(', '):'none'}
+${conds.length?`Condition guidelines to apply:
+${conds.includes('Type 2 Diabetes')?'DIABETES: Aerobic 4-7 days/wk moderate intensity; resistance 2-3 non-consecutive days; 150+ min/wk; aerobic+resistance combined best; note hypoglycemia risk.':''}
+${conds.includes('Hypertension (High Blood Pressure)')?'HYPERTENSION: Aerobic preferred over resistance for BP; moderate intensity most days; note postexercise hypotension risk with medications.':''}
+${conds.includes('COPD')?'COPD: Interval training better tolerated than continuous; low-moderate intensity; monitor dyspnea.':''}
+${conds.includes('Osteoporosis / Osteopenia')?'OSTEOPOROSIS: Weight-bearing aerobic 3-5 days/wk; resistance 2-3 days at 60-80% 1RM; balance training for fall prevention.':''}
+${conds.includes('Coronary Artery Disease')||conds.includes('Heart Failure')?'CARDIAC: Physician clearance required; moderate intensity only RPE 12-13; monitor chest pain and dyspnea; note cardiac rehab referral.':''}
+${conds.includes('Obesity (BMI >= 30)')?'OBESITY: Start with 10-min moderate bouts; progress to 150-300+ min/wk; resistance preserves lean mass; safe loss 0.5-1 lb/wk.':''}
+${conds.includes('Osteoarthritis')||conds.includes('Rheumatoid Arthritis')?'ARTHRITIS: Low-impact aerobic only (swimming, cycling, walking); resistance for joint stability; avoid high-impact; rest during flares.':''}
+${conds.includes('Cancer (current or history)')?'CANCER: Start conservatively due to fatigue; both aerobic and resistance improve quality of life; physician clearance recommended.':''}
+${conds.includes('Depression / Anxiety')?'DEPRESSION/ANXIETY: Aerobic 3-5 days/wk moderate intensity well-supported for mood; consistency and routine are key.':''}
+`:''}
+Equipment: ${eq}
+Favorite/familiar exercises to prioritize: ${(A.exPrefs||[]).length?(A.exPrefs).join(', '):'no specific preferences'}
+Max HR: ${mx}bpm | Moderate: ${mL}-${mH}bpm | Vigorous: ${vL}-${vH}bpm
+${wlNote}${A.raceTime?'Race time: '+A.raceTime:''}${A.sport?'Sport: '+A.sport:''}
+${Object.keys(A.lifts||{}).length?'Strength baseline (estimated 1RM): '+Object.entries(A.lifts).filter(([k,v])=>v.est1rm).map(([k,v])=>{const names={squat:'Squat',bench:'Bench',deadlift:'Deadlift',ohp:'OHP',row:'Row',pullup:'Pullup/Lat',legpress:'Leg Press',curl:'Curl'};return names[k]+' '+v.est1rm+'lbs';}).join(', '):'No strength baseline provided — use RPE-based recommendations'}
+
+Return ONLY this JSON (no markdown, no extra text):
+{"clearanceFlag":null,"patientSnapshot":{"name":"${A.name||'Client'}","age":"${age}","sex":"${A.sex}","height":"${A.height}","weight":"${A.weight} lbs","bmi":"${bmi||'N/A'}","maxHR":"${mx} bpm","modZone":"${mL}-${mH} bpm","vigZone":"${vL}-${vH} bpm","goals":"${gLabel}","pathway":"${A.pathway}","activityLevel":"${A.ar}","hrMonitor":"${A.hrMonitor||'no'}"},"summary":"2-3 sentence personalized overview","weeklySchedule":[{"day":"Monday","focus":"name","exercises":["Exercise 3x10","Exercise 3x12"],"cardio":"none","duration":"60 min","intensity":"Moderate","type":"strength","warmup":"5 min","cooldown":"5 min"}],"progression":[{"weeks":"Weeks 1-2","phase":"Foundation","volume":"2x12","intensity":"light-moderate","cardio":"20-30 min mod","notes":"focus"},{"weeks":"Weeks 3-4","phase":"Build","volume":"3x10","intensity":"moderate","cardio":"30 min mod","notes":"focus"},{"weeks":"Weeks 5-6","phase":"Progress","volume":"3x8","intensity":"moderate-hard","cardio":"30 min vig","notes":"focus"},{"weeks":"Weeks 7-8","phase":"Peak","volume":"4x6-8","intensity":"hard","cardio":"interval","notes":"focus"}],"aerobicRx":{"type":"activities based on cardio preferences","frequency":"x days/wk","duration":"x min","intensity":"HR zone with bpm","weeklyVolume":"x min/wk","talkTest":"description"},"resistanceRx":{"frequency":"x days/wk non-consecutive","sets":"x-x","reps":"x-x","rest":"x min","sessionLength":"x min","progression":"when/how to increase","exerciseOrder":"large to small","suggestedExercises":[{"muscle":"Chest","gym":"ex","travel":"alt"},{"muscle":"Back","gym":"ex","travel":"alt"},{"muscle":"Legs","gym":"ex","travel":"alt"},{"muscle":"Shoulders","gym":"ex","travel":"alt"},{"muscle":"Core","gym":"ex","travel":"alt"},{"muscle":"Arms","gym":"ex","travel":"alt"}]},"flexibilityRx":{"frequency":"x days/wk minimum","hold":"x sec per stretch","reps":"x reps per muscle group","timing":"static after exercise or standalone; dynamic before","keyAreas":"specific tight muscle groups for this person based on their goal, sport, and limitations"},"travelRx":{"applicable":false,"hotelGym":"","bodyweightCircuit":"","minimumSession":""},"weightLossNote":null,"conditionNotes":null,"tips":["EP-scope tip 1","EP-scope tip 2","EP-scope tip 3","EP-scope tip 4"]}
+Rules: weeklySchedule must have exactly ${days} days. ${A.hrMonitor&&A.hrMonitor!=='no'?'Client HAS a heart rate monitor — use bpm targets for all cardio intensity guidance.':'Client has NO heart rate monitor — use RPE scale (6-20) for all cardio intensity guidance instead of bpm.'} Only use equipment from list. Tips stay within exercise physiology scope only. IMPORTANT: if strength baseline is provided, use specific weights in exercises (e.g. 'Bench Press 3x8 at 145lbs') calculated from the 1RM percentages. If no baseline, use RPE guidance (e.g. 'Bench Press 3x8 at RPE 7-8').`;
+
+  try{
+    clearInterval(lsi);
+    console.log('Calling API now...');
+    const res=await fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2000,system:sys,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    if(data.error){
+      rs.innerHTML='<div class="al ar" style="margin-top:1rem;">&#9888; <strong>Error:</strong> '+data.error.message+'<br><button onclick="resetApp()" class="rstb" style="margin-top:.5rem;">&#8592; Try again</button></div>';
+      btn.disabled=false;btn.innerHTML='&#9889; Generate My Plan';return;
+    }
+    let plan;
+    if(data.plan){
+      plan=data.plan;
+    } else {
+      const raw=data.content?.map(b=>b.text||'').join('')||'';
+      try{
+        const clean=raw.replace(/```json/g,'').replace(/```/g,'').trim();
+        plan=JSON.parse(clean);
+      }catch(e){
+        const keys=Object.keys(data).join(', ');
+        const preview=raw?raw.substring(0,200):JSON.stringify(data).substring(0,200);
+        rs.innerHTML='<div class="al ar" style="margin-top:1rem;">&#9888; Parse error: '+e.message+'<br><small style="display:block;margin-top:.35rem;">Data keys: '+keys+'</small><small style="display:block;margin-top:.25rem;">Preview: '+preview+'</small><br><button onclick="resetApp()" class="rstb" style="margin-top:.5rem;">&#8592; Try again</button></div>';
+        btn.disabled=false;btn.innerHTML='&#9889; Generate My Plan';return;
+      }
+    }
+    showResult(plan,mx,mL,mH,vL,vH);
+  }catch(e){
+    rs.innerHTML='<div class="al ar" style="margin-top:1rem;">&#9888; <strong>Error:</strong> '+e.message+'<br><small style="opacity:.7;display:block;margin-top:.35rem;">This is likely a CORS issue — the browser is blocking the API call. See instructions below.</small><br><button onclick="resetApp()" class="rstb" style="margin-top:.5rem;">&#8592; Try again</button></div>';
+    console.error('Full error:',e);
+  }
+  btn.disabled=false;btn.innerHTML='&#9889; Generate My Plan';
+}
+
+function showResult(p,mx,mL,mH,vL,vH){
+  const snap=p.patientSnapshot||{};
+  const today=new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const tc=t=>({'strength':'tstr','moderate':'tmod','vigorous':'tvig','run':'trun','rest':'trest','flexibility':'tflex','recovery':'trec'}[t?.toLowerCase()]||'tmod');
+  const dr=(l,v)=>`<tr><td class="rxl">${l}</td><td class="rxv">${v||'&mdash;'}</td></tr>`;
+
+  let h=`<div class="rdoc">`;
+
+  // Clearance / weight loss alerts
+  if(p.clearanceFlag)h+=`<div class="al ar" style="margin:1.25rem 1.5rem 0;border-radius:8px;">&#9888; <strong>Medical Clearance Note:</strong> ${p.clearanceFlag}</div>`;
+  if(p.weightLossNote)h+=`<div class="al ab" style="margin:1rem 1.5rem 0;border-radius:8px;">&#128161; <strong>Weight Loss Guidance:</strong> ${p.weightLossNote}</div>`;
+
+  // ── DOCUMENT HEADER ──
+  h+=`<div class="rdhd">
+    <div class="rdtit">Exercise Prescription Summary</div>
+    <div class="rdsub">Personalized Exercise Prescription &nbsp;&middot;&nbsp; Science-Based &nbsp;&middot;&nbsp; Built by a Clinical Exercise Physiologist</div>
+    <div class="rdmeta">
+      <span class="rdmi"><strong>Date:</strong> ${today}</span>
+      <span class="rdmi"><strong>Goal:</strong> ${snap.goal||''}</span>
+      <span class="rdmi"><strong>Pathway:</strong> ${({health:"Health & Fitness",run:"Running",perf:"Strength & Performance",field:"Field Sports"}[snap.pathway])||snap.pathway||''}</span>
+    </div>
+  </div>`;
+
+  // ── PATIENT SNAPSHOT ── matches template exactly
+  const actMap={currently_active:'Currently Active',past_3mo:'Active (last 3 mo)',past_year:'Active (this year)',over_year:'Inactive >1 year',never:'Never exercised'};
+  const pathMap={health:'Health & Fitness',run:'Running',perf:'Strength & Performance',field:'Field Sports'};
+  h+=`<div class="rdsnap">
+    <div class="snap-grid">
+      <div class="snap-item"><span class="snapl">Name</span><span class="snapv">${snap.name||'&mdash;'}</span></div>
+      <div class="snap-item"><span class="snapl">Age</span><span class="snapv">${snap.age||'&mdash;'}</span></div>
+      <div class="snap-item"><span class="snapl">Sex</span><span class="snapv">${snap.sex||'&mdash;'}</span></div>
+      <div class="snap-item"><span class="snapl">Height</span><span class="snapv">${snap.height||'&mdash;'}</span></div>
+      <div class="snap-item"><span class="snapl">Weight</span><span class="snapv">${snap.weight||'&mdash;'}</span></div>
+      <div class="snap-item"><span class="snapl">BMI</span><span class="snapv">${snap.bmi||'&mdash;'}</span></div>
+      <div class="snap-item"><span class="snapl">Max Predicted HR</span><span class="snapv">${snap.maxHR||'&mdash;'}</span></div>
+      <div class="snap-item"><span class="snapl">Activity Level</span><span class="snapv">${actMap[snap.activityLevel]||snap.activityLevel||'&mdash;'}</span></div>
+    </div>
+  </div>`;
+
+  // ── YOUR GOALS ──
+  h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#127945;</span><span class="rdst">Your Goals</span></div>
+  <div class="rdsb"><p style="font-size:14px;line-height:1.75;color:var(--ink);">${p.summary||''}</p>
+  ${p.conditionNotes?`<div class="al ab" style="margin-top:.85rem;">&#128203; <strong>Condition-Specific Notes:</strong> ${p.conditionNotes}</div>`:''}
+  </div></div>`;
+
+  // ── AEROBIC / CARDIORESPIRATORY ──
+  if(p.aerobicRx){const a=p.aerobicRx;
+    h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#128004;</span><span class="rdst">Aerobic / Cardiorespiratory Exercise</span></div>
+    <div class="rdsb">
+      <table class="rxtbl"><tbody>
+        ${dr('Type',a.type)}
+        ${dr('Frequency',a.frequency)}
+        ${dr('Duration',a.duration)}
+        ${dr('Intensity',a.intensity)}
+      </tbody></table>
+      <table class="iztbl" style="margin-top:1rem;">
+        <thead><tr>
+          <th>Intensity Zone</th>
+          <th>Target HR (%HRmax)</th>
+          <th>Talk Test</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td>Moderate (64&ndash;76% HRmax)</td>
+            <td style="font-weight:700;color:var(--blue);">${mL}&ndash;${mH} bpm</td>
+            <td>Can speak in full sentences, but NOT sing comfortably</td>
+          </tr>
+          <tr>
+            <td>Vigorous (77&ndash;95% HRmax)</td>
+            <td style="font-weight:700;color:var(--orange);">${vL}&ndash;${vH} bpm</td>
+            <td>Only a few words possible between breaths</td>
+          </tr>
+        </tbody>
+      </table>
+      <table class="rxtbl" style="margin-top:.75rem;"><tbody>
+        <tr><td class="rxl">RPE Guide (Borg 6&ndash;20 Scale)</td><td class="rxv">Moderate = RPE 12&ndash;13 (&ldquo;somewhat hard&rdquo;) &nbsp; Vigorous = RPE 14&ndash;17 (&ldquo;hard to very hard&rdquo;)</td></tr>
+        <tr><td class="rxl">HRmax Formula Note</td><td class="rxv">Max predicted HR = ${mx} bpm (age-based estimate). Age-predicted HRmax can vary by &plusmn;10&ndash;12 bpm. Direct measurement from a supervised maximal exercise test is more accurate.</td></tr>
+      </tbody></table>
+      <div class="goalstrip">&#10003; Recommended weekly goal: 150&ndash;300 min/wk moderate OR 75&ndash;150 min/wk vigorous &nbsp;&middot;&nbsp; ${a.weeklyVolume||'See weekly schedule'}</div>
+      ${!snap.hrMonitor||snap.hrMonitor==='no'?`
+      <div style="margin-top:1rem;">
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:.5rem;">RPE Guide — Rate of Perceived Exertion (Borg 6–20 Scale)</div>
+        <table class="iztbl">
+          <thead><tr><th>RPE</th><th>How It Feels</th><th>Intensity Zone</th><th>Can You Talk?</th></tr></thead>
+          <tbody>
+            <tr><td>6–8</td><td>Very easy, minimal effort</td><td style="color:var(--dim);">Warm-up / Cool-down</td><td>Full conversation</td></tr>
+            <tr><td>9–11</td><td>Light — comfortable and sustainable</td><td style="color:var(--dim);">Light</td><td>Easily, full sentences</td></tr>
+            <tr><td style="font-weight:600;">12–13</td><td style="font-weight:600;">Moderate — noticeable but manageable</td><td style="color:var(--blue);font-weight:600;">Moderate Zone</td><td style="font-weight:600;">Yes, but not singing</td></tr>
+            <tr><td style="font-weight:600;">14–17</td><td style="font-weight:600;">Hard — breathing heavily, pushing</td><td style="color:var(--orange);font-weight:600;">Vigorous Zone</td><td style="font-weight:600;">Only a few words</td></tr>
+            <tr><td>18–20</td><td>Maximum — cannot sustain more than seconds</td><td style="color:var(--red);">Max Effort</td><td>Cannot speak</td></tr>
+          </tbody>
+        </table>
+        <div style="margin-top:.6rem;font-size:12px;color:var(--dim);">Use this scale to gauge your effort during every cardio session. Your moderate zone target is RPE 12–13. Vigorous is RPE 14–17. No heart rate monitor needed — your perceived effort is a reliable guide.</div>
+      </div>`:''}
+    </div></div>`;
+  }
+
+  // ── RESISTANCE TRAINING ──
+  if(p.resistanceRx){const r=p.resistanceRx;
+    h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#128170;</span><span class="rdst">Resistance Training</span></div>
+    <div class="rdsb">
+      <table class="rxtbl"><tbody>
+        ${dr('Frequency',r.frequency)}
+        ${dr('Sets',r.sets)}
+        ${dr('Reps',r.reps)}
+        ${dr('Rest Between Sets',r.rest)}
+        ${dr('Session Length',r.sessionLength)}
+        ${dr('Progression',r.progression)}
+      </tbody></table>`;
+    if(r.suggestedExercises?.length){
+      h+=`<div class="subtit">Suggested Exercises (based on your available equipment)</div>
+      <table class="extbl">
+        <thead><tr><th>Muscle Group</th><th>Exercise</th><th>Travel / Bodyweight Option</th></tr></thead>
+        <tbody>${r.suggestedExercises.map((e,i)=>`<tr ${i%2?'class="alt"':''}><td style="font-weight:600;">${e.muscle||''}</td><td>${e.gym||''}</td><td style="color:var(--dim);">${e.travel||''}</td></tr>`).join('')}</tbody>
+      </table>`;
+    }
+    h+=`</div></div>`;
+  }
+
+  // ── TRAVEL ──
+  if(p.travelRx && p.travelRx.applicable !== false){const t=p.travelRx;
+    h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#9992;</span><span class="rdst">Staying Consistent While Traveling</span></div>
+    <div class="rdsb">
+      <table class="rxtbl"><tbody>
+        ${dr('Hotel Gym',t.hotelGym)}
+        ${dr('Bodyweight Routine',t.bodyweightCircuit)}
+        ${dr('Minimum Viable Workout',t.minimumSession)}
+        <tr><td class="rxl">Scheduling Tip</td><td class="rxv">Book gym time in your calendar like a meeting &mdash; treat it as non-negotiable when possible.</td></tr>
+      </tbody></table>
+      <div class="quotestrip">Consistency &gt; Perfection. A 20-minute hotel gym session counts. Missing one workout does not erase progress. The goal is the long game.</div>
+    </div></div>`;
+  }
+
+  // ── FLEXIBILITY ──
+  if(p.flexibilityRx){const f=p.flexibilityRx;
+    const fRows=[
+      ['Frequency', f.frequency||'At least 2–3 days per week; daily is most effective'],
+      ['Static Hold', f.hold||'10–30 seconds per stretch; do NOT bounce'],
+      ['Reps Per Muscle Group', f.reps||'2–4 repetitions per muscle group'],
+      ['Timing', f.timing||'Static stretching best AFTER exercise or as a standalone session; dynamic stretching before exercise as warm-up'],
+      ['Key Focus Areas', f.keyAreas||null],
+    ].filter(r=>r[1]&&r[1].trim()&&r[1]!=='null'&&r[1]!=='—');
+    h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#129336;</span><span class="rdst">Flexibility</span></div>
+    <div class="rdsb">
+      <table class="rxtbl"><tbody>
+        ${fRows.map(r=>dr(r[0],r[1])).join('')}
+      </tbody></table>
+      <div class="quotestrip">A complete stretching routine takes less than 10 minutes. The most practical approach is adding it to the end of each session — your muscles are already warm and it requires no extra travel time.</div>
+    </div></div>`;
+  }
+
+  // ── SAMPLE WEEKLY SCHEDULE ──
+  if(p.weeklySchedule?.length){
+    h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#128197;</span><span class="rdst">Sample Weekly Schedule</span></div>
+    <div class="rdsb" style="padding:0;">`;
+    p.weeklySchedule.forEach((d,i)=>{
+      const isRest=(d.type||'').toLowerCase()==='rest'||(d.focus||'').toLowerCase().includes('rest');
+      const bg=i%2===0?'#ffffff':'#fafaf8';
+      h+=`<div style="padding:1rem 2rem;border-bottom:1px solid var(--line);background:${bg};">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${isRest?'0':'.6rem'};">
+          <div style="display:flex;align-items:center;gap:.75rem;">
+            <span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800;color:var(--ink);min-width:90px;">${d.day||''}</span>
+            <span style="font-size:14px;font-weight:600;color:var(--ink);">${d.focus||d.activity||''}</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.5rem;flex-shrink:0;">
+            <span class="dt ${tc(d.type)}">${d.intensity||d.type||''}</span>
+            <span style="font-size:12px;color:var(--dim);">${d.duration||''}</span>
+          </div>
+        </div>
+        ${!isRest && d.warmup?`<div style="font-size:12px;color:var(--blue);margin-bottom:.35rem;">&#9654; Warm-up: ${d.warmup}</div>`:''}
+        ${!isRest && d.exercises?.length?`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.25rem .75rem;margin-bottom:.35rem;">${d.exercises.map(ex=>{
+  const parts = ex.split(/(?=\s+\d+x|\s+at\s+|\s+@)/i);
+  const eName = parts[0].trim();
+  const eDetail = parts.slice(1).join('').trim();
+  const safeName = eName.replace(/'/g, "\\'");
+  return '<div style="display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;padding:.15rem 0;">' +
+    '<span style="color:var(--red);font-size:10px;">&#9632;</span>' +
+    '<span style="font-size:13px;font-weight:500;">' + eName + '</span>' +
+    (eDetail ? '<span style="font-size:12px;color:var(--dim);">' + eDetail + '</span>' : '') +
+    '<button class="htb" onclick="event.stopPropagation();showEM(\'' + safeName + '\')">' +
+    '? How to</button></div>';
+}).join('')}</div>`:''}
+        ${!isRest && d.cardio&&d.cardio!=='none'?`<div style="font-size:12.5px;color:var(--green);margin-top:.25rem;">&#128004; Cardio: ${d.cardio}</div>`:''}
+        ${!isRest && d.cooldown?`<div style="font-size:12px;color:var(--purple);margin-top:.25rem;">&#9654; Cool-down: ${d.cooldown}</div>`:''}
+        ${isRest?`<div style="font-size:13px;color:var(--dim);margin-top:.25rem;">Rest and recovery — light walking or stretching is fine</div>`:''}
+      </div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // ── 4-WEEK PROGRESSION ──
+  if(p.progression?.length){
+    h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#128200;</span><span class="rdst">4-Week Progression Plan</span></div>
+    <div class="rdsb">
+      <table class="progtbl">
+        <thead><tr><th>Phase</th><th>Period</th><th>Volume</th><th>Intensity</th><th>Cardio</th><th>Key Focus</th></tr></thead>
+        <tbody>${p.progression.map((r,i)=>`<tr ${i%2?'class="alt"':''}><td style="font-weight:600;">${r.phase||''}</td><td style="font-weight:700;color:var(--red);white-space:nowrap;">${r.weeks||''}</td><td>${r.volume||''}</td><td>${r.intensity||''}</td><td>${r.cardio||''}</td><td style="font-size:12px;color:var(--dim);">${r.notes||''}</td></tr>`).join('')}</tbody>
+      </table>
+    </div></div>`;
+  }
+
+  // ── YOUR NEXT STEPS ──
+  if(p.tips?.length){
+    h+=`<div class="rdsec"><div class="rdsh"><span class="rdsi">&#128161;</span><span class="rdst">Your Next Steps</span></div>
+    <div class="rdsb"><div class="tpl">`;
+    p.tips.forEach((t,i)=>{h+=`<div class="tpr"><span class="tpnum">${i+1}</span><span class="tpt">${t}</span></div>`;});
+    h+=`</div></div></div>`;
+  }
+
+  h+=`<div class="rdf">VO2Strength &nbsp;&middot;&nbsp; Built by a Clinical Exercise Physiologist &nbsp;&middot;&nbsp; For general exercise guidance only &nbsp;&middot;&nbsp; Not a substitute for medical advice &nbsp;&middot;&nbsp; Individual results may vary</div>`;
+  h+=`</div><button class="rstb" onclick="resetApp()">&#8592; Start over</button>`;
+
+  document.getElementById('result').innerHTML=h;
+  document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function resetApp(){
+  step=0;Object.keys(A).forEach(k=>delete A[k]);
+  document.getElementById('pwrap').style.display='block';
+  document.getElementById('stepc').style.display='block';
+  document.getElementById('result').style.display='none';
+  document.getElementById('result').innerHTML='';
+  renderStep();
+  document.getElementById('intake').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function showHRMNote(val){
+  const el=document.getElementById('hrm-note');
+  if(!el)return;
+  if(val==='no'){
+    el.innerHTML=`<div class="al aw">&#9888; <strong>No heart rate monitor?</strong> No problem — your plan will use <strong>RPE (Rate of Perceived Exertion)</strong> to guide intensity instead of heart rate. RPE is a 6–20 scale where 6 = rest and 20 = maximum effort. Your target zones will be explained in your plan.</div>`;
+  } else if(val){
+    el.innerHTML=`<div class="al ag">&#10003; Your plan will include target heart rate zones in beats per minute for all cardio sessions.</div>`;
+  } else {
+    el.innerHTML='';
+  }
+}
+function tfaq(btn){const i=btn.closest('.fqi');const o=i.classList.contains('op');document.querySelectorAll('.fqi').forEach(x=>x.classList.remove('op'));if(!o)i.classList.add('op');}
+
+renderStep();
+
+async function showEM(name) {
+  document.getElementById('exmod').style.display='block';
+  document.getElementById('exmod-title').textContent=name;
+  const body=document.getElementById('exmod-body');
+  body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;gap:.75rem;padding:2rem;"><div class="spinner" style="width:24px;height:24px;border:2.5px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:spin .65s linear infinite;"></div><span style="font-size:13px;color:var(--dim);">Loading guide...</span></div>';
+  document.body.style.overflow='hidden';
+  
+  // Fetch GIF from ExerciseDB simultaneously with AI call
+  let gifUrl = null;
+  const gifPromise = fetch('https://exercisedb.p.rapidapi.com/exercises/name/'+encodeURIComponent(name.toLowerCase()),{
+    headers:{
+      'X-RapidAPI-Key': RAPIDAPI_KEY,
+      'X-RapidAPI-Host': 'exercisedb.p.rapidapi.com'
+    }
+  }).then(r=>r.json()).then(data=>{
+    if(Array.isArray(data)&&data.length>0&&data[0].gifUrl){
+      gifUrl=data[0].gifUrl;
+    }
+  }).catch(()=>{});
+
+  try {
+    const [aiRes] = await Promise.all([
+      fetch('/.netlify/functions/generate',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:500,system:'You are a certified strength coach. Return ONLY valid JSON, no markdown, no backticks.',messages:[{role:'user',content:'Exercise guide for: "'+name+'". Return JSON: {"muscles":["muscle1","muscle2"],"order":"when in workout session","steps":["step1","step2","step3","step4"],"mistake":"most common mistake","beginner":"easier beginner alternative"}'}]})}),
+      gifPromise
+    ]);
+    const d=await aiRes.json();
+    let g=d.plan;
+    if(!g){const raw=d.content?.[0]?.text||'';g=JSON.parse(raw.replace(/```json|```/g,'').trim());}
+    body.innerHTML=
+      (gifUrl?'<img src="'+gifUrl+'" alt="'+name+'" class="ex-gif" onerror="this.classList.add(\"hidden\")"/>':'<div class="ex-gif-ph">&#127939; '+name+'</div>')+
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:.4rem;">Target Muscles</div>'+
+      '<div class="ex-muscles">'+(g.muscles||[]).map(m=>'<span class="ex-mtag">'+m+'</span>').join('')+'</div>'+
+      (g.order?'<div style="font-size:12.5px;color:var(--blue);background:var(--blue-dim);border-radius:7px;padding:.5rem .75rem;margin-bottom:.75rem;border:1px solid #a0c4f8;">&#128197; <strong>When in session:</strong> '+g.order+'</div>':'')+
+      '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--dim);margin-bottom:.4rem;">How To</div>'+
+      '<ol class="ex-steps">'+(g.steps||[]).map((s,i)=>'<li class="ex-step"><span class="ex-snum">'+(i+1)+'</span><span>'+s+'</span></li>').join('')+'</ol>'+
+      (g.mistake?'<div class="ex-tip">&#9888; <strong>Common mistake:</strong> '+g.mistake+'</div>':'')+
+      (g.beginner?'<div class="ex-mod">&#128161; <strong>Beginner option:</strong> '+g.beginner+'</div>':'');
+  } catch(e) {
+    body.innerHTML='<p style="color:var(--dim);font-size:13px;padding:1rem;">Could not load guide. Please try again.</p>';
+  }
+}
+function closeEM(){document.getElementById('exmod').style.display='none';document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeEM();});
+
+</script>
+
+<div id="exmod" style="display:none;">
+  <div class="modal-overlay" onclick="if(event.target===this)closeEM()">
+    <div class="modal">
+      <div class="modal-head">
+        <span class="modal-title" id="exmod-title">Exercise Guide</span>
+        <button class="modal-close" onclick="closeEM()">&#x2715;</button>
+      </div>
+      <div id="exmod-body" style="padding:1.25rem;">
+        <div style="display:flex;align-items:center;justify-content:center;gap:.75rem;padding:2rem;">
+          <div class="spinner" style="width:24px;height:24px;border:2.5px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:spin .65s linear infinite;"></div>
+          <span style="font-size:13px;color:var(--dim);">Loading...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
