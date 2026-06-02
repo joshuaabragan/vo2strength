@@ -3,5 +3,8 @@
     "api/generate.js": {
       "maxDuration": 60
     }
-  }
+  },
+  "rewrites": [
+    { "source": "/tracker", "destination": "/tracker.html" }
+  ]
 }
