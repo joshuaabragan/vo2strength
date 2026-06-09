@@ -2662,6 +2662,93 @@ function renderTab(tab){
   else if(tab==='calendar') renderCalendarTab(c);
 }
 
+// ── VOLUME TARGETS (ACSM/NSCA) ──
+const VOLUME_TARGETS = {
+  chest:{min:8,sweet:10,near:18,over:20},
+  back:{min:8,sweet:10,near:20,over:22},
+  legs:{min:8,sweet:12,near:20,over:24},
+  shoulders:{min:6,sweet:8,near:16,over:20},
+  arms:{min:6,sweet:8,near:14,over:18},
+  core:{min:4,sweet:6,near:16,over:20}
+};
+
+function getMuscleVolume(){
+  const weekStart = new Date();
+  weekStart.setDate(weekStart.getDate()-weekStart.getDay());
+  const weekStartStr = weekStart.toISOString().split('T')[0];
+  const weekLogs = workoutLogs.filter(l=>l.date>=weekStartStr);
+  const vol = {chest:0,back:0,legs:0,shoulders:0,arms:0,core:0};
+  weekLogs.forEach(log=>{
+    const sets = Array.isArray(log.exercises_json)?log.exercises_json:[];
+    sets.forEach(s=>{
+      const lower=(s.exercise||'').toLowerCase();
+      if(lower.includes('bench')||lower.includes('chest')||lower.includes('fly')||lower.includes('push')||lower.includes('pec')||lower.includes('dip')) vol.chest++;
+      else if(lower.includes('row')||lower.includes('pull')||lower.includes('lat')||lower.includes('deadlift')||lower.includes('cable row')) vol.back++;
+      else if(lower.includes('squat')||lower.includes('leg')||lower.includes('hip')||lower.includes('lunge')||lower.includes('hamstring')||lower.includes('glute')||lower.includes('calf')||lower.includes('rdl')) vol.legs++;
+      else if((lower.includes('press')&&!lower.includes('bench')&&!lower.includes('leg'))||lower.includes('lateral')||lower.includes('shoulder')||lower.includes('delt')||lower.includes('ohp')) vol.shoulders++;
+      else if(lower.includes('curl')||lower.includes('tricep')||lower.includes('bicep')||lower.includes('skullcrusher')||lower.includes('hammer')) vol.arms++;
+      else if(lower.includes('plank')||lower.includes('ab')||lower.includes('core')||lower.includes('pallof')||lower.includes('crunch')||lower.includes('dead bug')||lower.includes('rollout')) vol.core++;
+    });
+  });
+  return vol;
+}
+
+function getMuscleStatus(muscle, sets){
+  const t = VOLUME_TARGETS[muscle];
+  if(!t) return 'notEnough';
+  if(sets >= t.over) return 'overLimit';
+  if(sets >= t.near) return 'nearLimit';
+  if(sets >= t.sweet) return 'sweetSpot';
+  return 'notEnough';
+}
+
+function getInsights(vol){
+  const insights = [];
+  const STATUS_COLORS = {sweetSpot:'#5aff8c',nearLimit:'#ffaa5a',overLimit:'#ff5a5a',notEnough:'#555'};
+
+  // Check each muscle against targets
+  Object.entries(vol).forEach(([muscle,sets])=>{
+    const status = getMuscleStatus(muscle,sets);
+    const name = muscle.charAt(0).toUpperCase()+muscle.slice(1);
+    const t = VOLUME_TARGETS[muscle];
+    if(status==='overLimit'){
+      insights.push({type:'warning',color:'#ff5a5a',icon:'⚠',title:`${name} over weekly limit`,body:`${sets} sets this week exceeds the maximum recoverable volume (~${t.over} sets). Consider reducing volume or substituting with lighter accessory work to avoid overtraining.`});
+    } else if(status==='nearLimit'){
+      insights.push({type:'caution',color:'#ffaa5a',icon:'△',title:`${name} volume approaching limit`,body:`${sets} sets this week. ${t.over-sets} more sets before you hit the maximum recoverable volume. Plan remaining ${name.toLowerCase()} sessions carefully.`});
+    } else if(status==='notEnough' && sets>0){
+      insights.push({type:'info',color:'#5af0ff',icon:'i',title:`${name} below minimum effective volume`,body:`Only ${sets} set${sets!==1?'s':''} this week. Aim for at least ${t.min} sets to drive adaptation. Upcoming sessions should include ${name.toLowerCase()} work.`});
+    }
+  });
+
+  // Progression suggestions from exercise history
+  if(workoutLogs.length >= 2){
+    const recentExercises = {};
+    workoutLogs.slice(0,6).forEach(log=>{
+      const sets = Array.isArray(log.exercises_json)?log.exercises_json:[];
+      sets.forEach(s=>{
+        if(s.exercise&&s.weight&&s.reps){
+          if(!recentExercises[s.exercise]) recentExercises[s.exercise]=[];
+          recentExercises[s.exercise].push({weight:parseFloat(s.weight),reps:parseInt(s.reps),rpe:parseInt(s.rpe)||0});
+        }
+      });
+    });
+    Object.entries(recentExercises).forEach(([ex,sets])=>{
+      if(sets.length>=4){
+        const lastTwo = sets.slice(0,2);
+        const prevTwo = sets.slice(2,4);
+        const avgRpeRecent = lastTwo.reduce((a,s)=>a+(s.rpe||7),0)/lastTwo.length;
+        const avgRpePrev = prevTwo.reduce((a,s)=>a+(s.rpe||7),0)/prevTwo.length;
+        if(avgRpeRecent <= 7 && avgRpePrev <= 7.5){
+          const lastWeight = lastTwo[0].weight;
+          insights.push({type:'progress',color:'#e8ff5a',icon:'↑',title:`Time to increase weight on ${ex}`,body:`You've completed ${ex} at a low effort level (RPE ≤7) for multiple sessions in a row. Consider adding 2.5–5 lbs next session.`});
+        }
+      }
+    });
+  }
+
+  return insights.slice(0,3);
+}
+
 // ── PLAN TAB ──
 function renderPlanTab(c){
   if(!currentPlan){
@@ -2677,8 +2764,25 @@ function renderPlanTab(c){
   const today=new Date();
   const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const todayName=dayNames[today.getDay()];
-  const schedule=currentPlan.weeklySchedule||[];
+  const schedule=(currentPlan.weeklySchedule||[]).filter(d=>d.day&&!d.day.includes('Week 2')&&!d.day.includes('Week 3'));
   const todaySession=schedule.find(d=>d.day===todayName)||schedule[0];
+  const vol = getMuscleVolume();
+  const insights = getInsights(vol);
+  const weekWorkouts = workoutLogs.filter(l=>{
+    const weekStart=new Date();weekStart.setDate(weekStart.getDate()-weekStart.getDay());
+    return l.date>=weekStart.toISOString().split('T')[0];
+  });
+  const weekVol = weekWorkouts.reduce((a,l)=>a+(l.total_volume||0),0);
+
+  // Streak calculation
+  let streak=0;
+  const todayStr=today.toISOString().split('T')[0];
+  for(let i=0;i<30;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    if(workoutLogs.some(l=>l.date===ds)){streak++;}
+    else if(i>0){break;}
+  }
 
   const typeTag=(type)=>{
     const t=(type||'').toLowerCase();
@@ -2688,38 +2792,109 @@ function renderPlanTab(c){
     return '';
   };
 
-  let html=`<div style="padding:.85rem 1.25rem .5rem;background:white;border-bottom:1px solid #e2e2e2;">
-    <div style="font-size:11px;color:#6b6b6b;margin-bottom:.2rem;">${today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
-    <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1.2rem;color:#0a0a0a;">${todaySession?.focus||todayName}</div>
-    <div style="margin-top:.4rem;display:flex;align-items:center;gap:.5rem;">${typeTag(todaySession?.type)}<span style="font-size:11px;color:#6b6b6b;">${todaySession?.duration||''}</span></div>
+  // Greeting
+  const hour=today.getHours();
+  const greeting=hour<12?'Good morning':'hour<17'?'Good afternoon':'Good evening';
+  const userName=currentUser?.user_metadata?.full_name?.split(' ')[0]||currentUser?.user_metadata?.username||'';
+
+  let html=`
+  <!-- GREETING + STATS -->
+  <div style="padding:1.1rem 1.25rem .85rem;background:var(--surface2);border-bottom:1px solid var(--border);">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.85rem;">
+      <div>
+        <div style="font-size:11px;color:var(--dim);letter-spacing:.04em;">${today.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'})}</div>
+        <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1.3rem;color:var(--text);margin-top:.15rem;">${hour<12?'Good morning':hour<17?'Good afternoon':'Good evening'}${userName?', '+userName:''}</div>
+      </div>
+      ${streak>0?`<div style="display:flex;align-items:center;gap:.35rem;background:var(--surface);border:1px solid var(--border2);border-radius:99px;padding:.35rem .75rem;">
+        <span style="font-size:.9rem;">🔥</span>
+        <span style="font-family:Syne,sans-serif;font-size:.75rem;font-weight:700;color:var(--push);">${streak}-day streak</span>
+      </div>`:''}
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .75rem;text-align:center;">
+        <div style="font-family:Syne,sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);">${weekWorkouts.length}</div>
+        <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">This week</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .75rem;text-align:center;">
+        <div style="font-family:Syne,sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);">${weekVol>0?Math.round(weekVol/1000)+'k':'—'}</div>
+        <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">lbs lifted</div>
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:.6rem .75rem;text-align:center;">
+        <div style="font-family:Syne,sans-serif;font-size:1.2rem;font-weight:800;color:var(--text);">${workoutLogs.length}</div>
+        <div style="font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-top:1px;">Total sessions</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSIGHTS -->
+  ${insights.length?`<div style="padding:.85rem 1.25rem .25rem;">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:.6rem;">Your Insights</div>
+    <div style="display:flex;flex-direction:column;gap:.5rem;">
+      ${insights.map(ins=>`<div style="background:var(--surface);border:1px solid ${ins.color}33;border-radius:10px;padding:.85rem 1rem;display:flex;gap:.75rem;align-items:flex-start;position:relative;">
+        <div style="width:24px;height:24px;border-radius:6px;background:${ins.color}22;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:${ins.color};flex-shrink:0;">${ins.icon}</div>
+        <div style="flex:1;">
+          <div style="font-family:Syne,sans-serif;font-size:.8rem;font-weight:700;color:${ins.color};margin-bottom:.25rem;">${ins.title}</div>
+          <div style="font-size:11.5px;color:var(--dim);line-height:1.55;">${ins.body}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`:''}
+
+  <!-- TODAY'S WORKOUT -->
+  <div style="padding:.85rem 1.25rem .4rem;">
+    <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-bottom:.6rem;">Today's Workout</div>
   </div>`;
 
   if(todaySession){
     const isRest=(todaySession.type||'').toLowerCase().includes('rest')||(todaySession.focus||'').toLowerCase().includes('rest');
+    const isCardio=(todaySession.type||'').toLowerCase().includes('cardio')||(todaySession.type||'').toLowerCase().includes('run');
+
+    // Extract HR from intensity field
+    const hrMatch=(todaySession.intensity||'').match(/(\d{2,3})[–\-](\d{2,3})\s*bpm/);
+    const hrRange=hrMatch?`${hrMatch[1]}–${hrMatch[2]} bpm`:null;
+
     if(isRest){
-      html+=`<div style="padding:2rem 1.25rem;text-align:center;color:#6b6b6b;font-size:13px;">Rest and recovery day. Light walking or stretching is fine.</div>`;
+      html+=`<div style="margin:0 1rem .75rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.25rem;text-align:center;color:var(--dim);font-size:13px;">Rest and recovery day.<br>Light walking or stretching is fine.</div>`;
     } else {
-      if(todaySession.warmup) html+=`<div style="padding:.6rem 1.25rem;background:#dde8ff;font-size:12px;color:#0042c4;border-bottom:1px solid #e2e2e2;">&#9654; Warm-up: ${todaySession.warmup}</div>`;
+      html+=`<div style="margin:0 1rem .75rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+        <div style="padding:.85rem 1rem;border-bottom:1px solid var(--border);">
+          <div style="font-family:Syne,sans-serif;font-weight:800;font-size:1rem;color:var(--text);">${todaySession.focus||todaySession.day}</div>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-top:.3rem;flex-wrap:wrap;">
+            ${typeTag(todaySession.type)}
+            <span style="font-size:11px;color:var(--dim);">${todaySession.duration||''}</span>
+            ${hrRange?`<span style="font-size:11px;font-weight:600;color:#ff5a8c;background:#ff5a8c22;padding:2px 8px;border-radius:99px;">❤ ${hrRange}</span>`:''}
+          </div>
+        </div>`;
+
+      if(todaySession.warmup) html+=`<div style="padding:.55rem 1rem;background:var(--surface2);border-bottom:1px solid var(--border);font-size:12px;color:#5af0ff;">▶ ${todaySession.warmup}</div>`;
+
       if(todaySession.exercises?.length){
-        html+=`<div style="padding:.5rem 0;">`;
         todaySession.exercises.forEach((ex,i)=>{
           const parts=ex.split(/(\d+x\d+|\d+x\d+-\d+|@.*|at\s+\d+)/i);
           const exName=parts[0].trim();
           const exDetail=ex.replace(exName,'').trim();
-          const safeEx=exName.replace(/"/g,'&quot;');
-          html+=`<div style="display:flex;align-items:center;gap:.75rem;padding:.6rem 1.25rem;border-bottom:1px solid #f0f0f0;">
-            <span style="font-family:Syne,sans-serif;font-weight:700;font-size:.85rem;color:#c8002a;opacity:.4;min-width:20px;">${i+1}</span>
-            <div style="flex:1;">
-              <div style="font-size:13.5px;font-weight:600;color:#0a0a0a;">${exName}</div>
-              ${exDetail?`<div style="font-size:12px;color:#6b6b6b;">${exDetail}</div>`:''}
+          const safeEx=exName.replace(/'/g,"\'").replace(/"/g,'&quot;');
+          html+=`<div style="display:flex;align-items:center;gap:.65rem;padding:.6rem 1rem;border-bottom:1px solid var(--border);">
+            <span style="font-family:Syne,sans-serif;font-size:.75rem;font-weight:700;color:var(--push);opacity:.6;min-width:18px;">${i+1}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${exName}</div>
+              ${exDetail?`<div style="font-size:11.5px;color:var(--dim);">${exDetail}</div>`:''}
             </div>
-            <button onclick="showEM('${safeEx}')" style="background:none;border:1px solid #e2e2e2;border-radius:6px;padding:4px 10px;font-family:Instrument Sans,sans-serif;font-size:11px;color:#6b6b6b;cursor:pointer;white-space:nowrap;">? How to</button>
+            <div style="display:flex;gap:.35rem;flex-shrink:0;">
+              <button onclick="showSwapModal('${safeEx}',${i})" style="background:none;border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-family:DM Mono,monospace;font-size:10px;color:var(--dim);cursor:pointer;">swap</button>
+              <button onclick="showEM('${safeEx}')" style="background:none;border:1px solid var(--border2);border-radius:5px;padding:4px 8px;font-family:DM Mono,monospace;font-size:10px;color:var(--dim);cursor:pointer;">how to</button>
+            </div>
           </div>`;
         });
-        html+=`</div>`;
       }
-      if(todaySession.cardio&&todaySession.cardio!=='none') html+=`<div style="padding:.6rem 1.25rem;background:#d8f0e6;font-size:12.5px;color:#006e3c;border-top:1px solid #e2e2e2;">&#128004; ${todaySession.cardio}</div>`;
-      if(todaySession.cooldown) html+=`<div style="padding:.5rem 1.25rem;font-size:11.5px;color:#6b6b6b;font-style:italic;border-top:1px solid #f0f0f0;">Cool-down: ${todaySession.cooldown}</div>`;
+      if(todaySession.cardio&&todaySession.cardio!=='none'){
+        html+=`<div style="padding:.6rem 1rem;background:#006e3c22;font-size:12px;color:#5aff8c;border-top:1px solid var(--border);">🏃 ${todaySession.cardio}</div>`;
+      }
+      if(hrRange&&isCardio){
+        html+=`<div style="padding:.6rem 1rem;background:#ff5a8c11;font-size:12px;color:#ff5a8c;border-top:1px solid var(--border);">❤ Target HR: ${hrRange} · ${todaySession.intensity||''}</div>`;
+      }
+      if(todaySession.cooldown) html+=`<div style="padding:.5rem 1rem;font-size:11px;color:var(--dim2);font-style:italic;border-top:1px solid var(--border);">Cool-down: ${todaySession.cooldown}</div>`;
+      html+=`</div>`;
     }
   }
 
@@ -2975,75 +3150,187 @@ function renderBodyTab(c){
     {id:'core',name:'Core',color:'#5aff8c'},
   ];
 
-  const weekStart = new Date();
-  weekStart.setDate(weekStart.getDate()-weekStart.getDay());
-  const weekStartStr = weekStart.toISOString().split('T')[0];
-  const weekLogs = workoutLogs.filter(l=>l.date>=weekStartStr);
+  const vol = getMuscleVolume();
+  const STATUS = {notEnough:'#333333',sweetSpot:'#5aff8c',nearLimit:'#ffaa5a',overLimit:'#ff5a5a'};
+  const STATUS_LABELS = {notEnough:'Not enough yet',sweetSpot:'Sweet spot',nearLimit:'Near limit',overLimit:'Over limit'};
 
-  const muscleVol = {};
-  muscles.forEach(m=>{muscleVol[m.id]={sets:0,volume:0};});
-  weekLogs.forEach(log=>{
-    const sets = Array.isArray(log.exercises_json)?log.exercises_json:[];
-    sets.forEach(s=>{
-      const lower=(s.exercise||'').toLowerCase();
-      let muscle='core';
-      if(lower.includes('bench')||lower.includes('chest')||lower.includes('fly')||lower.includes('push')) muscle='chest';
-      else if(lower.includes('row')||lower.includes('pull')||lower.includes('lat')||lower.includes('deadlift')) muscle='back';
-      else if(lower.includes('squat')||lower.includes('leg')||lower.includes('hip')||lower.includes('lunge')||lower.includes('hamstring')||lower.includes('glute')||lower.includes('calf')) muscle='legs';
-      else if(lower.includes('press')&&!lower.includes('bench')||lower.includes('lateral')||lower.includes('shoulder')||lower.includes('delt')) muscle='shoulders';
-      else if(lower.includes('curl')||lower.includes('tricep')||lower.includes('bicep')||lower.includes('arm')) muscle='arms';
-      muscleVol[muscle].sets++;
-      if(s.weight&&s.reps&&!isNaN(s.weight)&&!isNaN(s.reps)) muscleVol[muscle].volume+=parseFloat(s.weight)*parseFloat(s.reps);
-    });
-  });
+  function muscleColor(id){ return STATUS[getMuscleStatus(id,vol[id]||0)]; }
+  function muscleOpacity(id){ const s=vol[id]||0; return s===0?0.15:0.7; }
 
-  const maxSets = Math.max(...Object.values(muscleVol).map(v=>v.sets),1);
+  const weekStart=new Date();weekStart.setDate(weekStart.getDate()-weekStart.getDay());
+  const weekWorkouts=workoutLogs.filter(l=>l.date>=weekStart.toISOString().split('T')[0]).length;
 
-  let html = `<div class="weight-display">
-    <div style="display:flex;align-items:flex-end;justify-content:space-between;">
-      <div>
-        <div style="font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.4rem;">Body Weight</div>
-        ${bodyStats.length?`<div style="display:flex;align-items:baseline;gap:.25rem;">
-          <span class="weight-big">${bodyStats[0].weight_lbs}</span>
-          <span class="weight-unit">lbs</span>
-          ${bodyStats.length>1?`<span class="weight-delta" style="color:${bodyStats[0].weight_lbs>bodyStats[1].weight_lbs?'#ff6666':'#5aff8c'};">${bodyStats[0].weight_lbs>bodyStats[1].weight_lbs?'▲':'▼'}${Math.abs(bodyStats[0].weight_lbs-bodyStats[1].weight_lbs).toFixed(1)}</span>`:''}
-        </div>`:`<div style="font-size:13px;color:var(--dim);">Not logged yet</div>`}
-      </div>
-      <button onclick="logWeight()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--dim);border-radius:6px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;">+ Log</button>
+  let html = `
+  <!-- BODY WEIGHT -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);">
+    <div>
+      <div style="font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.3rem;">Body Weight</div>
+      ${bodyStats.length?`<div style="display:flex;align-items:baseline;gap:.35rem;">
+        <span style="font-family:Syne,sans-serif;font-size:1.8rem;font-weight:800;color:var(--text);">${bodyStats[0].weight_lbs}</span>
+        <span style="font-size:12px;color:var(--dim);">lbs</span>
+        ${bodyStats.length>1?`<span style="font-size:12px;color:${bodyStats[0].weight_lbs>bodyStats[1].weight_lbs?'#ff6666':'#5aff8c'};">${bodyStats[0].weight_lbs>bodyStats[1].weight_lbs?'▲':'▼'}${Math.abs(bodyStats[0].weight_lbs-bodyStats[1].weight_lbs).toFixed(1)}</span>`:''}
+      </div>` : `<div style="font-size:13px;color:var(--dim);">Not logged yet</div>`}
     </div>
-    ${bodyStats.length?`<div class="mini-graph">
-      ${bodyStats.slice(0,14).reverse().map((s,i,arr)=>{
-        const min=Math.min(...arr.map(x=>x.weight_lbs));
-        const max=Math.max(...arr.map(x=>x.weight_lbs));
-        const pct=((s.weight_lbs-min)/(max-min||1)*70+20);
-        const isToday=s.date===new Date().toISOString().split('T')[0];
-        return `<div class="mini-bar" style="height:${pct}%;background:${isToday?'var(--push)':'var(--border2)'};"></div>`;
-      }).join('')}
-    </div>`:''}
+    <div style="display:flex;gap:.5rem;align-items:center;">
+      ${bodyStats.length?`<div style="display:flex;align-items:flex-end;gap:2px;height:32px;">
+        ${bodyStats.slice(0,10).reverse().map((s,i,arr)=>{
+          const min=Math.min(...arr.map(x=>x.weight_lbs));
+          const max=Math.max(...arr.map(x=>x.weight_lbs));
+          const pct=((s.weight_lbs-min)/(max-min||1)*70+20);
+          const isLatest=i===arr.length-1;
+          return `<div style="width:6px;height:${pct}%;background:${isLatest?'var(--push)':'var(--border2)'};border-radius:2px 2px 0 0;"></div>`;
+        }).join('')}
+      </div>` : ''}
+      <button onclick="logWeight()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--dim);border-radius:6px;padding:5px 10px;font-family:DM Mono,monospace;font-size:11px;cursor:pointer;">+ Log</button>
+    </div>
   </div>
 
-  <div class="sec-head"><span class="sec-title">This Week</span><span class="sec-meta">Resets Monday</span></div>
-  <div class="muscle-list">
-    ${muscles.map(m=>`<div class="muscle-row">
-      <div class="muscle-dot" style="background:${muscleVol[m.id].sets>0?m.color:'var(--border2)'}"></div>
-      <div class="muscle-name-col">${m.name}</div>
-      <div class="muscle-sets-col">${muscleVol[m.id].sets} sets${muscleVol[m.id].volume?` · ${Math.round(muscleVol[m.id].volume).toLocaleString()} lbs`:''}</div>
-      <div class="muscle-bar-wrap"><div class="muscle-bar-fill" style="width:${muscleVol[m.id].sets/maxSets*100}%;background:${m.color};"></div></div>
-    </div>`).join('')}
+  <!-- WEEK HEADER -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:.75rem 1.25rem .4rem;">
+    <div style="font-family:Syne,sans-serif;font-size:.85rem;font-weight:700;color:var(--text);">This Week's Volume</div>
+    <div style="font-size:10px;color:var(--dim);">Resets Monday</div>
+  </div>
+
+  <!-- STATUS LEGEND -->
+  <div style="display:flex;gap:.75rem;padding:0 1.25rem .75rem;flex-wrap:wrap;">
+    ${Object.entries(STATUS_LABELS).map(([k,v])=>`<div style="display:flex;align-items:center;gap:.3rem;"><div style="width:7px;height:7px;border-radius:50%;background:${STATUS[k]};"></div><span style="font-size:10px;color:var(--dim2);">${v}</span></div>`).join('')}
+  </div>
+
+  <!-- SVG BODY MAP -->
+  <div style="padding:0 1.25rem .75rem;display:flex;gap:1rem;justify-content:center;">
+    <!-- FRONT -->
+    <div style="flex:1;text-align:center;">
+      <div style="font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;">Front</div>
+      <svg viewBox="0 0 100 220" style="width:100%;max-width:120px;" xmlns="http://www.w3.org/2000/svg">
+        <!-- Body outline -->
+        <ellipse cx="50" cy="18" rx="12" ry="14" fill="#222" stroke="#333" stroke-width=".5"/>
+        <!-- Shoulders -->
+        <ellipse cx="50" cy="50" rx="22" ry="8" fill="#1a1a1a"/>
+        <!-- Torso -->
+        <rect x="28" y="55" width="44" height="65" rx="4" fill="#1a1a1a"/>
+        <!-- Arms -->
+        <rect x="12" y="55" width="14" height="55" rx="6" fill="#1a1a1a"/>
+        <rect x="74" y="55" width="14" height="55" rx="6" fill="#1a1a1a"/>
+        <!-- Legs -->
+        <rect x="28" y="122" width="19" height="80" rx="6" fill="#1a1a1a"/>
+        <rect x="53" y="122" width="19" height="80" rx="6" fill="#1a1a1a"/>
+
+        <!-- CHEST muscle zone -->
+        <ellipse cx="40" cy="68" rx="10" ry="8" fill="${muscleColor('chest')}" opacity="${muscleOpacity('chest')}" onclick="showMuscleDetail('chest')" style="cursor:pointer;"/>
+        <ellipse cx="60" cy="68" rx="10" ry="8" fill="${muscleColor('chest')}" opacity="${muscleOpacity('chest')}" onclick="showMuscleDetail('chest')" style="cursor:pointer;"/>
+        <!-- SHOULDERS muscle zone -->
+        <ellipse cx="24" cy="55" rx="9" ry="7" fill="${muscleColor('shoulders')}" opacity="${muscleOpacity('shoulders')}" onclick="showMuscleDetail('shoulders')" style="cursor:pointer;"/>
+        <ellipse cx="76" cy="55" rx="9" ry="7" fill="${muscleColor('shoulders')}" opacity="${muscleOpacity('shoulders')}" onclick="showMuscleDetail('shoulders')" style="cursor:pointer;"/>
+        <!-- ARMS (biceps) -->
+        <ellipse cx="16" cy="75" rx="5" ry="12" fill="${muscleColor('arms')}" opacity="${muscleOpacity('arms')}" onclick="showMuscleDetail('arms')" style="cursor:pointer;"/>
+        <ellipse cx="84" cy="75" rx="5" ry="12" fill="${muscleColor('arms')}" opacity="${muscleOpacity('arms')}" onclick="showMuscleDetail('arms')" style="cursor:pointer;"/>
+        <!-- CORE (abs) -->
+        <rect x="38" y="78" width="7" height="30" rx="3" fill="${muscleColor('core')}" opacity="${muscleOpacity('core')}" onclick="showMuscleDetail('core')" style="cursor:pointer;"/>
+        <rect x="55" y="78" width="7" height="30" rx="3" fill="${muscleColor('core')}" opacity="${muscleOpacity('core')}" onclick="showMuscleDetail('core')" style="cursor:pointer;"/>
+        <!-- LEGS (quads) -->
+        <rect x="30" y="128" width="15" height="40" rx="5" fill="${muscleColor('legs')}" opacity="${muscleOpacity('legs')}" onclick="showMuscleDetail('legs')" style="cursor:pointer;"/>
+        <rect x="55" y="128" width="15" height="40" rx="5" fill="${muscleColor('legs')}" opacity="${muscleOpacity('legs')}" onclick="showMuscleDetail('legs')" style="cursor:pointer;"/>
+      </svg>
+    </div>
+    <!-- BACK -->
+    <div style="flex:1;text-align:center;">
+      <div style="font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;">Back</div>
+      <svg viewBox="0 0 100 220" style="width:100%;max-width:120px;" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="50" cy="18" rx="12" ry="14" fill="#222" stroke="#333" stroke-width=".5"/>
+        <ellipse cx="50" cy="50" rx="22" ry="8" fill="#1a1a1a"/>
+        <rect x="28" y="55" width="44" height="65" rx="4" fill="#1a1a1a"/>
+        <rect x="12" y="55" width="14" height="55" rx="6" fill="#1a1a1a"/>
+        <rect x="74" y="55" width="14" height="55" rx="6" fill="#1a1a1a"/>
+        <rect x="28" y="122" width="19" height="80" rx="6" fill="#1a1a1a"/>
+        <rect x="53" y="122" width="19" height="80" rx="6" fill="#1a1a1a"/>
+        <!-- BACK (lats/traps) -->
+        <ellipse cx="40" cy="68" rx="10" ry="12" fill="${muscleColor('back')}" opacity="${muscleOpacity('back')}" onclick="showMuscleDetail('back')" style="cursor:pointer;"/>
+        <ellipse cx="60" cy="68" rx="10" ry="12" fill="${muscleColor('back')}" opacity="${muscleOpacity('back')}" onclick="showMuscleDetail('back')" style="cursor:pointer;"/>
+        <!-- SHOULDERS (rear delt) -->
+        <ellipse cx="24" cy="55" rx="9" ry="7" fill="${muscleColor('shoulders')}" opacity="${muscleOpacity('shoulders')}" onclick="showMuscleDetail('shoulders')" style="cursor:pointer;"/>
+        <ellipse cx="76" cy="55" rx="9" ry="7" fill="${muscleColor('shoulders')}" opacity="${muscleOpacity('shoulders')}" onclick="showMuscleDetail('shoulders')" style="cursor:pointer;"/>
+        <!-- ARMS (triceps) -->
+        <ellipse cx="16" cy="80" rx="5" ry="10" fill="${muscleColor('arms')}" opacity="${muscleOpacity('arms')}" onclick="showMuscleDetail('arms')" style="cursor:pointer;"/>
+        <ellipse cx="84" cy="80" rx="5" ry="10" fill="${muscleColor('arms')}" opacity="${muscleOpacity('arms')}" onclick="showMuscleDetail('arms')" style="cursor:pointer;"/>
+        <!-- LEGS (hamstrings/glutes) -->
+        <ellipse cx="37" cy="118" rx="10" ry="8" fill="${muscleColor('legs')}" opacity="${muscleOpacity('legs')}" onclick="showMuscleDetail('legs')" style="cursor:pointer;"/>
+        <ellipse cx="63" cy="118" rx="10" ry="8" fill="${muscleColor('legs')}" opacity="${muscleOpacity('legs')}" onclick="showMuscleDetail('legs')" style="cursor:pointer;"/>
+        <rect x="30" y="128" width="15" height="35" rx="5" fill="${muscleColor('legs')}" opacity="${muscleOpacity('legs')*0.7}" onclick="showMuscleDetail('legs')" style="cursor:pointer;"/>
+        <rect x="55" y="128" width="15" height="35" rx="5" fill="${muscleColor('legs')}" opacity="${muscleOpacity('legs')*0.7}" onclick="showMuscleDetail('legs')" style="cursor:pointer;"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- MUSCLE LIST WITH TARGETS -->
+  <div style="padding:0 0 .5rem;">
+    ${muscles.map(m=>{
+      const sets = vol[m.id]||0;
+      const status = getMuscleStatus(m.id,sets);
+      const statusColor = STATUS[status];
+      const t = VOLUME_TARGETS[m.id];
+      const pct = Math.min(sets/t.over*100,100);
+      return `<div onclick="showMuscleDetail('${m.id}')" style="display:flex;align-items:center;gap:.85rem;padding:.7rem 1.25rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+        <div style="width:8px;height:8px;border-radius:50%;background:${statusColor};flex-shrink:0;"></div>
+        <div style="font-family:Syne,sans-serif;font-size:.8rem;font-weight:600;flex:1;">${m.name}</div>
+        <div style="font-size:11px;color:var(--dim);font-family:DM Mono,monospace;min-width:80px;text-align:right;">${sets}/${t.sweet}–${t.over} sets</div>
+        <div style="width:60px;height:4px;background:var(--border);border-radius:99px;overflow:hidden;">
+          <div style="height:100%;width:${pct}%;background:${statusColor};border-radius:99px;"></div>
+        </div>
+      </div>`;
+    }).join('')}
   </div>`;
 
   c.innerHTML = html;
 }
 
-async function logWeight(){
-  const w = prompt('Body weight (lbs):');
-  if(!w||isNaN(parseFloat(w))) return;
-  try {
-    await sb.from('body_stats').insert({user_id:currentUser.id,date:new Date().toISOString().split('T')[0],weight_lbs:parseFloat(w)});
-    bodyStats = [{date:new Date().toISOString().split('T')[0],weight_lbs:parseFloat(w)},...bodyStats];
-    renderTab('body');
-  } catch(e){ alert('Could not save.'); }
+function showMuscleDetail(muscleId){
+  const names = {chest:'Chest',back:'Back',legs:'Legs',shoulders:'Shoulders',arms:'Arms',core:'Core'};
+  const vol = getMuscleVolume();
+  const sets = vol[muscleId]||0;
+  const t = VOLUME_TARGETS[muscleId];
+  const status = getMuscleStatus(muscleId,sets);
+  const STATUS = {notEnough:'#333333',sweetSpot:'#5aff8c',nearLimit:'#ffaa5a',overLimit:'#ff5a5a'};
+  const STATUS_LABELS = {notEnough:'Not enough yet',sweetSpot:'Sweet spot',nearLimit:'Near limit',overLimit:'Over limit'};
+  const color = STATUS[status];
+  const label = STATUS_LABELS[status];
+
+  const recommendations = {
+    notEnough:`Target ${t.min}–${t.sweet} sets/week for this muscle group. Add at least ${Math.max(0,t.min-sets)} more sets before the week resets.`,
+    sweetSpot:`You're in the optimal training zone. Maintain this volume for consistent adaptation and recovery.`,
+    nearLimit:`You're approaching the maximum recoverable volume (~${t.over} sets/week). Be cautious adding more ${names[muscleId].toLowerCase()} volume this week.`,
+    overLimit:`You've exceeded the maximum recoverable volume for ${names[muscleId].toLowerCase()} this week. Prioritize recovery — reduce intensity or skip additional ${names[muscleId].toLowerCase()} work until the week resets.`
+  };
+
+  const modal = document.createElement('div');
+  modal.style.cssText='position:fixed;inset:0;background:rgba(10,10,10,.8);z-index:400;display:flex;align-items:flex-end;justify-content:center;';
+  modal.innerHTML=`
+    <div style="background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:1.5rem 1.5rem calc(1.5rem + env(safe-area-inset-bottom));">
+      <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1rem;">
+        <div style="width:10px;height:10px;border-radius:50%;background:${color};"></div>
+        <div style="font-family:Syne,sans-serif;font-weight:700;font-size:1rem;">${names[muscleId]}</div>
+        <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:99px;background:${color}22;color:${color};">${label}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;margin-bottom:1rem;">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem;text-align:center;">
+          <div style="font-family:Syne,sans-serif;font-size:1.3rem;font-weight:800;color:${color};">${sets}</div>
+          <div style="font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.06em;">This week</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem;text-align:center;">
+          <div style="font-family:Syne,sans-serif;font-size:1.3rem;font-weight:800;color:var(--text);">${t.min}–${t.sweet}</div>
+          <div style="font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.06em;">Sweet spot</div>
+        </div>
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.65rem;text-align:center;">
+          <div style="font-family:Syne,sans-serif;font-size:1.3rem;font-weight:800;color:var(--text);">${t.over}</div>
+          <div style="font-size:9px;color:var(--dim2);text-transform:uppercase;letter-spacing:.06em;">Max volume</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--dim);line-height:1.6;margin-bottom:1.25rem;">${recommendations[status]}</div>
+      <button onclick="this.closest('[style*=fixed]').remove()" style="width:100%;height:42px;background:none;border:1px solid var(--border2);border-radius:8px;color:var(--dim);font-family:DM Mono,monospace;font-size:12px;cursor:pointer;">Close</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
 }
+
 
 // ── CALENDAR TAB ──
 function renderCalendarTab(c){
@@ -3213,6 +3500,47 @@ function continueGuest(){
   document.getElementById('auth-screen')?.remove();
   document.removeEventListener('keydown',authEnter);
   renderTab(activeTab);
+}
+
+// ── SWAP MODAL ──
+let swapExerciseIndex = null;
+function showSwapModal(exName, idx){
+  swapExerciseIndex = idx;
+  // Figure out muscle group from exercise name
+  const lower = exName.toLowerCase();
+  let dayType = 'Push';
+  if(lower.includes('row')||lower.includes('pull')||lower.includes('lat')||lower.includes('deadlift')||lower.includes('curl')) dayType='Pull';
+  else if(lower.includes('squat')||lower.includes('leg')||lower.includes('hip')||lower.includes('lunge')||lower.includes('hamstring')||lower.includes('glute')) dayType='Legs';
+
+  const alternatives = (EXERCISES[dayType]||[]).filter(e=>e!==exName).slice(0,12);
+  const modal = document.createElement('div');
+  modal.id = 'swap-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(10,10,10,.8);z-index:400;display:flex;align-items:flex-end;justify-content:center;';
+  modal.innerHTML = `
+    <div style="background:var(--surface);border-radius:16px 16px 0 0;width:100%;max-width:480px;padding:1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));">
+      <div style="font-family:Syne,sans-serif;font-weight:700;font-size:.9rem;color:var(--text);margin-bottom:.25rem;">Swap Exercise</div>
+      <div style="font-size:11px;color:var(--dim);margin-bottom:1rem;">Replacing: ${exName}</div>
+      <div style="display:flex;flex-direction:column;gap:.35rem;max-height:50vh;overflow-y:auto;">
+        ${alternatives.map(alt=>`<div onclick="confirmSwap('${alt.replace(/'/g,"\'")}',${idx})" style="padding:.75rem 1rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;">${alt}</div>`).join('')}
+      </div>
+      <button onclick="document.getElementById('swap-modal').remove()" style="width:100%;height:40px;background:none;border:none;color:var(--dim);font-family:DM Mono,monospace;font-size:12px;cursor:pointer;margin-top:.75rem;">Cancel</button>
+    </div>`;
+  document.body.appendChild(modal);
+  modal.addEventListener('click', e=>{if(e.target===modal)modal.remove();});
+}
+
+function confirmSwap(newEx, idx){
+  if(!currentPlan?.weeklySchedule) return;
+  const dayNames=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const todayName = dayNames[new Date().getDay()];
+  const session = currentPlan.weeklySchedule.find(d=>d.day===todayName);
+  if(session?.exercises?.[idx]){
+    const oldEx = session.exercises[idx];
+    const detail = oldEx.replace(oldEx.split(/[\d(]/)[0].trim(),'').trim();
+    session.exercises[idx] = newEx + (detail?' '+detail:'');
+  }
+  document.getElementById('swap-modal')?.remove();
+  renderTab('plan');
 }
 
 function showUserMenu(){
